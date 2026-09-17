@@ -16,6 +16,7 @@
           pnpm
           prisma-engines_7
           openssl
+          jq
         ];
 
         shellHook = ''
