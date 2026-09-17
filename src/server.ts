@@ -1,12 +1,12 @@
-import express from "express";
+import express from 'express';
 
 const app = express();
 
 const port = 3000;
 
-app.get("/health", (_req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
-    status: "ok",
+    status: 'ok',
   });
 });
 

@@ -16,10 +16,15 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.3",
+    "eslint": "^10.10.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.9.7",
     "tsx": "^4.23.13",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^5.0.1"
   }
 }
