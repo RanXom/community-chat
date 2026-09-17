@@ -1,15 +1,35 @@
-import express from 'express';
+import app from './app.js';
+import { env } from './config/env.js';
+import { prisma } from './prisma/client.js';
 
-const app = express();
+const port = env.port;
 
-const port = 3000;
+async function start(): Promise<void> {
+  await prisma.$connect();
 
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'ok',
+  const server = app.listen(port, () => {
+    console.log(`community-chat is listening at ${port}`);
   });
-});
 
-app.listen(port, () => {
-  console.log(`community-chat listening on port ${port}`);
+  const shutdown = async (signal: string): Promise<void> => {
+    console.log(`received ${signal}, shutting down`);
+
+    server.close(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', () => {
+    void shutdown('SIGNINT');
+  });
+
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM');
+  });
+}
+
+start().catch((error: unknown) => {
+  console.error('failed to start server', error);
+  process.exitCode = 1;
 });
