@@ -13,14 +13,17 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.9.1",
     "express": "^5.2.1",
+    "pg": "^8.23.0",
     "prisma": "^7.9.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.3",
+    "@types/pg": "^8.23.1",
     "eslint": "^10.10.0",
     "jiti": "^2.7.0",
     "prettier": "^3.9.7",
