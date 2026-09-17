@@ -1,7 +1,6 @@
 import app from './app.js';
+import { env } from './config/env.js';
 
-const port = process.env.PORT ?? 3000;
-
-app.listen(port, () => {
-  console.log(`community-chat listening on port ${port}`);
+app.listen(env.port, () => {
+  console.log(`community-chat listening on port ${env.port}`);
 });
