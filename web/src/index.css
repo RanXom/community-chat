@@ -346,6 +346,7 @@ label .optional {
 
 .messages article {
   margin-bottom: 18px;
+  animation: message-in 0.18s ease-out;
 }
 
 .messages article strong {
@@ -381,6 +382,7 @@ article.failed .message-status {
 .typing {
   color: #527052;
   font-size: 12px;
+  animation: typing-pulse 1.6s ease-in-out infinite;
 }
 
 .new-messages-button {
@@ -417,6 +419,53 @@ article.failed .message-status {
 .composer input {
   border: 0;
   box-shadow: none;
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typing-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.new-messages-button {
+  animation: new-messages-in 0.15s ease-out;
+}
+
+@keyframes new-messages-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .messages article,
+  .typing,
+  .new-messages-button {
+    animation: none;
+  }
 }
 
 @media (max-width: 700px) {
