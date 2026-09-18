@@ -35,7 +35,7 @@ export const refreshController: RequestHandler = async (req, res, next) => {
 
 export const logoutController: RequestHandler = async (req, res, next) => {
   try {
-    logoutUser(req.body.refreshToken);
+    await logoutUser(req.body.refreshToken);
 
     res.status(204).send();
   } catch (error) {

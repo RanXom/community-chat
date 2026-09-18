@@ -130,7 +130,21 @@ export async function refreshAccessToken(refreshToken: string) {
     },
   });
 
-  if (!session || session.revokedAt !== null || session.expiresAt <= new Date()) {
+  if (!session || session.expiresAt <= new Date()) {
+    throw new AppError(401, 'Invalid refresh token');
+  }
+
+  if (session.revokedAt !== null) {
+    await prisma.refreshToken.updateMany({
+      where: {
+        familyId: session.familyId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+
     throw new AppError(401, 'Invalid refresh token');
   }
 
