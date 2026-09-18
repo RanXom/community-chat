@@ -26,6 +26,15 @@ socket.on('connect', () => {
 socket.on('channel_joined', (data) => {
   console.log('channel joined:', data);
 
+  socket.emit('send_message', {
+    channelId,
+    content: 'hello from socket smoke test',
+  });
+});
+
+socket.on('message_created', (message) => {
+  console.log('message created:', message);
+
   socket.emit('leave_channel', channelId);
 });
 

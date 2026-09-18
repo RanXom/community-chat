@@ -151,7 +151,7 @@ Content-Type: application/json
 }
 
 ### Create channel
-# @name Create channel
+# @name Create channel A
 # @assert response.statusCode == 201
 POST {{base.url}}/api/channels
 Authorization: Bearer {{auth.token}}
@@ -160,6 +160,18 @@ Content-Type: application/json
 {
   "name": "general",
   "description": "General community discussion"
+}
+
+### Create channel B
+# @name Create channel B
+# @assert response.statusCode == 201
+POST {{base.url}}/api/channels
+Authorization: Bearer {{auth.token}}
+Content-Type: application/json
+
+{
+  "name": "isolation-test",
+  "description": "Socket room isolation test"
 }
 
 ### Duplicate channel
@@ -196,4 +208,16 @@ Authorization: Bearer {{auth.token}}
 # @name Leave channel
 # @assert response.statusCode == 204
 DELETE {{base.url}}/api/channels/{{channel.id}}/leave
+Authorization: Bearer {{auth.token}}
+
+### Message Pagination
+# @name Messages Paged
+# @assert response.statusCode == 200
+GET {{base.url}}/api/channels/{{channel.id}}/messages?limit=2
+Authorization: Bearer {{auth.token}}
+
+### Message Pagination with cursor
+# @name Messages Paged (with cursor)
+# @assert response.statusCode == 200
+GET {{base.url}}/api/channels/{{channel.id}}/messages?limit=2&&cursor=1bff5531-66eb-4cef-93be-53aa59c7df61
 Authorization: Bearer {{auth.token}}
