@@ -5,8 +5,8 @@ POST {{base.url}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "testuser2",
-  "email": "text2@example.com",
+  "username": "testuser3",
+  "email": "text3@example.com",
   "password": "correct-horse-battery2"
 }
 
@@ -28,8 +28,8 @@ POST {{base.url}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "testuser",
-  "email": "text@example.com",
+  "username": "shad",
+  "email": "text3@example.com",
   "password": "correct-horse-battery"
 }
 
@@ -40,8 +40,8 @@ POST {{base.url}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "text2@example.com",
-  "password": "correct-horse-battery2"
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
 }
 
 ### Login user (Invalid Creds)
