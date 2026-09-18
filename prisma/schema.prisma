@@ -69,6 +69,7 @@ model Message {
 model RefreshToken {
   id        String   @id @default(uuid())
   tokenHash String   @unique
+  familyId  String
   expiresAt DateTime
   createdAt DateTime @default(now())
   revokedAt DateTime?
@@ -77,5 +78,6 @@ model RefreshToken {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([familyId])
   @@index([expiresAt])
 }
