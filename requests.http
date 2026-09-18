@@ -1,0 +1,115 @@
+### Register user
+# @name Register user
+# @assert response.statusCode == 201
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Invalid Registration
+# @name Invalid Registration
+# @assert response.statusCode == 400
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "x",
+  "email": "not-an-email-lol",
+  "password": "short"
+}
+
+### Duplicate registration
+# @name Duplicates registration
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Login user (Valid Creds)
+# @name Login user (Valid creds)
+# @assert response.statusCode == 200
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Login user (Invalid Creds)
+# @name Login user (Invalid Creds)
+# @assert response.statusCode == 401
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "text@example.com",
+  "password": "wrong-pass"
+}
+
+### Login user (Unknown email)
+# @name Login user (Unknown email)
+# @assert response.statusCode == 401
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Login user (Invalid payload)
+# @name Login user (Invalid payload)
+# @assert response.statusCode == 400
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "short"
+}
+
+### Refresh token - valid
+# @name Refresh token (valid)
+# @assert response.statusCode == 200
+POST {{base.url}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
+}
+
+### Logout - valid refresh token
+# @name Logout (valid token)
+# @assert response.statusCode == 204
+POST {{base.url}}/api/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
+}
+            
+### Authenticated user
+# @name Authenticated user
+# @assert response.statusCode == 200
+GET {{base.url}}/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzU0OTYsImV4cCI6MTc4OTczNjM5Nn0.tK1xt2YBjShM0WjZS3GWtgqyvlp-XG0bPDcF7UCRc9U
+
+### Missing token
+# @name Missing token
+# @assert response.statusCode == 401
+GET {{base.url}}/api/auth/me
+
+### Malformed token
+# @name Malformed token
+# @assert response.statusCode == 401
+GET {{base.url}}/api/auth/me
+Authorization: Bearer definitely-not-a-jwt

@@ -30,3 +30,4 @@ Thumbs.db
 .direnv/
 
 /src/generated/prisma
+resterm.env.json
