@@ -70,7 +70,7 @@ function App() {
     });
 
     socket.on('user_typing', (data) => {
-      setTypingUser(data.userId);
+      setTypingUser(data.username);
     });
 
     socket.on('user_stopped_typing', () => {
@@ -295,8 +295,8 @@ function App() {
             </article>
           ))}
 
-          {typingUser && typingUser !== user?.id && (
-            <p className="typing">&gt; user is typing...</p>
+          {typingUser && typingUser !== user?.username && (
+            <p className="typing">&gt; {typingUser} is typing...</p>
           )}
         </div>
 

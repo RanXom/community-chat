@@ -1,6 +1,7 @@
 import type { Socket } from 'socket.io';
 import type { SocketUser } from './socket.types.js';
 import { verifyAccessToken } from '../api/auth/jwt.js';
+import { prisma } from '../prisma/client.js';
 
 export async function authenticateSocket(socket: Socket): Promise<SocketUser> {
   const token = socket.handshake.auth?.token;
