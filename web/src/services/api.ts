@@ -63,6 +63,24 @@ export function getChannels(token: string) {
   return request<{ channels: Channel[] }>('/channels', {}, token);
 }
 
+export function createChannel(token: string, name: string, description?: string) {
+  return request<{ channel: Channel }>(
+    '/channels',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        ...(description?.trim() ? { description: description.trim() } : {}),
+      }),
+    },
+    token,
+  );
+}
+
+export function deleteChannel(token: string, channelId: string) {
+  return request(`/channels/${channelId}`, { method: 'DELETE' }, token);
+}
+
 export function joinChannel(token: string, channelId: string) {
   return request(
     `/channels/${channelId}/join`,

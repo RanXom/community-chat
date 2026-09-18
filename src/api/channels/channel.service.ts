@@ -134,6 +134,16 @@ export async function listMembers(channelId: string) {
   });
 }
 
+export async function deleteChannel(channelId: string) {
+  const result = await prisma.channel.deleteMany({
+    where: { id: channelId },
+  });
+
+  if (result.count === 0) {
+    throw new AppError(404, 'Channel not found');
+  }
+}
+
 export async function isChannelMember(userId: string, channelId: string): Promise<boolean> {
   const membership = await prisma.channelMember.findUnique({
     where: {

@@ -2,6 +2,7 @@ import type { RequestHandler } from 'express';
 
 import {
   createChannel,
+  deleteChannel,
   getChannel,
   joinChannel,
   leaveChannel,
@@ -63,6 +64,16 @@ export const joinChannelController: RequestHandler = async (req, res, next) => {
 export const leaveChannelController: RequestHandler = async (req, res, next) => {
   try {
     await leaveChannel(req.user!.id, getChannelId(req));
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteChannelController: RequestHandler = async (req, res, next) => {
+  try {
+    await deleteChannel(getChannelId(req));
 
     res.status(204).send();
   } catch (error) {

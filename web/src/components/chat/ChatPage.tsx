@@ -13,8 +13,11 @@ function ChatPage({ auth }: { auth: AuthState }) {
         user={auth.user}
         channels={chat.channels}
         activeChannel={chat.channel}
+        canManageChannels={auth.user?.role === 'ADMIN'}
         onSelectChannel={chat.selectChannel}
         onLogout={auth.logout}
+        onCreateChannel={chat.createChannel}
+        onDeleteChannel={chat.deleteChannel}
       />
 
       <section className="chat-window terminal">

@@ -136,21 +136,186 @@ form button:hover {
 .channel-list {
   padding: 12px;
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
-.channel-list button {
+.channel-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.channel-name {
+  flex: 1;
+  min-width: 0;
   border: 0;
   background: transparent;
   text-align: left;
   padding: 10px;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.channel-list button:hover,
-.channel-list button.active {
+.channel-name:hover,
+.channel-name.active {
   background: #0c220c;
   color: #72ff72;
+}
+
+.channel-delete {
+  border: 0;
+  background: transparent;
+  color: #527052;
+  padding: 0 10px;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0;
+}
+
+.channel-row:hover .channel-delete,
+.channel-delete:focus-visible {
+  opacity: 1;
+}
+
+.channel-delete:hover {
+  color: #ff6666;
+}
+
+.admin-actions {
+  padding: 8px 12px 12px;
+  border-top: 1px solid #2b7a2b;
+}
+
+.admin-actions button {
+  width: 100%;
+  border: 1px dashed #2b7a2b;
+  background: transparent;
+  color: #72ff72;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.admin-actions button:hover {
+  background: #0c220c;
+}
+
+.role-tag {
+  margin-left: 8px;
+  color: #527052;
+  font-style: normal;
+  font-size: 11px;
+  border: 1px solid #2b7a2b;
+  padding: 1px 5px;
+}
+
+.dialog {
+  border: 1px solid #2b7a2b;
+  background: #030703;
+  color: #b6ffb6;
+  min-width: min(420px, calc(100vw - 40px));
+  padding: 0;
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2b7a2b;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.dialog-close {
+  border: 0;
+  background: transparent;
+  color: #527052;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.dialog-close:hover {
+  color: #72ff72;
+}
+
+.dialog-close:focus-visible {
+  outline: 2px solid #72ff72;
+  outline-offset: 2px;
+}
+
+.dialog-body {
+  padding: 20px 16px;
+}
+
+.dialog-body label {
+  width: 100%;
+}
+
+label .optional {
+  color: #527052;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.dialog-warning {
+  color: #b6ffb6;
+  line-height: 1.5;
+}
+
+.dialog-warning strong {
+  color: #72ff72;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.dialog-actions button {
+  border: 1px solid #2b7a2b;
+  background: #0b200b;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.dialog-actions button:hover:not(:disabled) {
+  background: #123012;
+}
+
+.dialog-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dialog-cancel {
+  color: #527052;
+}
+
+.dialog-cancel:hover:not(:disabled) {
+  color: #b6ffb6;
+}
+
+.dialog-submit {
+  color: #72ff72;
+}
+
+.dialog-danger {
+  color: #ff6666;
+  border-color: #7a2b2b;
 }
 
 .sidebar footer {

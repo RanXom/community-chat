@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 
-import { getChannels, getMessages, joinChannel } from '../services/api';
+import {
+  createChannel as createChannelApi,
+  deleteChannel as deleteChannelApi,
+  getChannels,
+  getMessages,
+  joinChannel,
+} from '../services/api';
 import { createSocket } from '../services/socket';
 import type { Channel, Message, User } from '../types';
 
@@ -15,6 +21,8 @@ export type ChatState = {
   selectChannel: (channel: Channel) => Promise<void>;
   sendMessage: () => void;
   handleInput: (value: string) => void;
+  createChannel: (name: string, description?: string) => Promise<Channel>;
+  deleteChannel: (channelId: string) => Promise<void>;
 };
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -158,6 +166,26 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     socketRef.current.emit(value.trim() ? 'typing_start' : 'typing_stop', channel.id);
   }
 
+  async function createChannel(name: string, description?: string) {
+    const created = await createChannelApi(token, name, description);
+
+    const data = await getChannels(token);
+    setChannels(data.channels);
+
+    return created.channel;
+  }
+
+  async function deleteChannel(channelId: string) {
+    await deleteChannelApi(token, channelId);
+
+    setChannels((current) => current.filter((item) => item.id !== channelId));
+
+    if (channel?.id === channelId) {
+      setChannel(null);
+      setMessages([]);
+    }
+  }
+
   return {
     channels,
     channel,
@@ -168,5 +196,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     selectChannel,
     sendMessage,
     handleInput,
+    createChannel,
+    deleteChannel,
   };
 }
