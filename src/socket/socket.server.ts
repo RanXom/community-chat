@@ -1,6 +1,7 @@
 import type { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { authenticateSocket } from './socket.auth.js';
+import { registerRoomHandlers } from './socket.rooms.js';
 
 export function createSocketServer(httpServer: ReturnType<typeof createServer>): Server {
   const io = new Server(httpServer, {
@@ -26,6 +27,8 @@ export function createSocketServer(httpServer: ReturnType<typeof createServer>):
     const user = socket.data.user;
 
     console.log(`socket connected: ${socket.id} user=${user.id}`);
+
+    registerRoomHandlers(io, socket);
 
     socket.on('disconnect', (reason) => {
       console.log(`socket disconnected: ${socket.id} reason=${reason}`);

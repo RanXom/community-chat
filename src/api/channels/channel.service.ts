@@ -133,3 +133,19 @@ export async function listMembers(channelId: string) {
     },
   });
 }
+
+export async function isChannelMember(userId: string, channelId: string): Promise<boolean> {
+  const membership = await prisma.channelMember.findUnique({
+    where: {
+      userId_channelId: {
+        userId,
+        channelId,
+      },
+    },
+    select: {
+      userId: true,
+    },
+  });
+
+  return membership !== null;
+}
