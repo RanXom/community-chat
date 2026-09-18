@@ -42,3 +42,9 @@ export const logoutController: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const meController: RequestHandler = (req, res) => {
+  res.status(200).json({
+    user: req.user,
+  });
+};

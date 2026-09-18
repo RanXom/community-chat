@@ -96,3 +96,20 @@ Content-Type: application/json
 {
   "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
 }
+            
+### Authenticated user
+# @name Authenticated user
+# @assert response.statusCode == 200
+GET {{base.url}}/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzU0OTYsImV4cCI6MTc4OTczNjM5Nn0.tK1xt2YBjShM0WjZS3GWtgqyvlp-XG0bPDcF7UCRc9U
+
+### Missing token
+# @name Missing token
+# @assert response.statusCode == 401
+GET {{base.url}}/api/auth/me
+
+### Malformed token
+# @name Malformed token
+# @assert response.statusCode == 401
+GET {{base.url}}/api/auth/me
+Authorization: Bearer definitely-not-a-jwt
