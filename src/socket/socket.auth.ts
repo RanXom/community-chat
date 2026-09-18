@@ -11,8 +11,23 @@ export async function authenticateSocket(socket: Socket): Promise<SocketUser> {
 
   const payload = await verifyAccessToken(token);
 
+  const user = await prisma.user.findUnique({
+    where: {
+      id: payload.sub,
+    },
+    select: {
+      id: true,
+      username: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
   return {
-    id: payload.sub,
+    id: user.id,
+    username: user.username,
     role: payload.role,
   };
 }

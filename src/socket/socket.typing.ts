@@ -11,6 +11,7 @@ export function registerTypingHandlers(_io: Server, socket: Socket): void {
 
     socket.to(channelId).emit('user_typing', {
       userId: user.id,
+      username: user.username,
       channelId,
     });
   });
