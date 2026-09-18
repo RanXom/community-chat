@@ -84,5 +84,15 @@ POST {{base.url}}/api/auth/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "w5BeYaRBppXI_aE3uFs7U_5n4F7yhC1M1Bzp2swPiYU"
+  "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
+}
+
+### Logout - valid refresh token
+# @name Logout (valid token)
+# @assert response.statusCode == 204
+POST {{base.url}}/api/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
 }

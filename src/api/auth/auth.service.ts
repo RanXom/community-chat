@@ -161,3 +161,17 @@ export async function refreshAccessToken(refreshToken: string) {
     user: session.user,
   };
 }
+
+export async function logoutUser(refreshToken: string): Promise<void> {
+  const tokenHash = hashRefreshToken(refreshToken);
+
+  await prisma.refreshToken.updateMany({
+    where: {
+      tokenHash,
+      revokedAt: null,
+    },
+    data: {
+      revokedAt: new Date(),
+    },
+  });
+}
