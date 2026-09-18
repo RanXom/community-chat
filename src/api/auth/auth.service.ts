@@ -1,4 +1,5 @@
 import { prisma } from '../../prisma/client.js';
+import { AppError } from '../../utils/app-error.js';
 import { hashPassword } from '../../utils/password.js';
 
 export async function registerUser(username: string, email: string, password: string) {
@@ -12,7 +13,7 @@ export async function registerUser(username: string, email: string, password: st
   });
 
   if (existingUser) {
-    throw new Error('Username or email already exists');
+    throw new AppError(409, 'Username or email already exists');
   }
 
   const passwordHash = await hashPassword(password);
