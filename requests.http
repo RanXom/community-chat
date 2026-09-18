@@ -96,12 +96,12 @@ Content-Type: application/json
 {
   "refreshToken": "-dF51L3crqDBoHPyrWi75SbOl_IlM9c5u6dE8LecFow"
 }
-            
+
 ### Authenticated user
 # @name Authenticated user
 # @assert response.statusCode == 200
 GET {{base.url}}/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzU0OTYsImV4cCI6MTc4OTczNjM5Nn0.tK1xt2YBjShM0WjZS3GWtgqyvlp-XG0bPDcF7UCRc9U
+Authorization: Bearer {{auth.token}}
 
 ### Missing token
 # @name Missing token
@@ -118,16 +118,82 @@ Authorization: Bearer definitely-not-a-jwt
 # @name Change to member
 # @assert response.statusCode == 200
 GET {{base.url}}/api/auth/member-test
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
+Authorization: Bearer {{auth.token}}
 
 ### MEMBER → moderator endpoint
 # @name Change to moderator
 # @assert response.statusCode == 403
 GET {{base.url}}/api/auth/moderator-test
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
+Authorization: Bearer {{auth.token}}
 
 ### MEMBER → admin endpoint
 # @name Change to admin
 # @assert response.statusCode == 403
 GET {{base.url}}/api/auth/admin-test
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
+Authorization: Bearer {{auth.token}}
+
+### List channels
+# @name List channels
+# @assert response.statusCode == 200
+GET {{base.url}}/api/channels
+Authorization: Bearer {{auth.token}}
+
+### MEMBER cannot create channel
+# @name Member create channel
+# @assert response.statusCode == 403
+POST {{base.url}}/api/channels
+Authorization: Bearer {{auth.token}}
+Content-Type: application/json
+
+{
+  "name": "general",
+  "description": "General community discussion"
+}
+
+### Create channel
+# @name Create channel
+# @assert response.statusCode == 201
+POST {{base.url}}/api/channels
+Authorization: Bearer {{auth.token}}
+Content-Type: application/json
+
+{
+  "name": "general",
+  "description": "General community discussion"
+}
+
+### Duplicate channel
+# @name Duplicate channel
+# @assert response.statusCode == 409
+POST {{base.url}}/api/channels
+Authorization: Bearer {{auth.token}}
+Content-Type: application/json
+
+{
+  "name": "general",
+  "description": "Duplicate"
+}
+
+### Get channel
+# @name Get channel
+# @assert response.statusCode == 200
+GET {{base.url}}/api/channels/{{channel.id}}
+Authorization: Bearer {{auth.token}}
+
+### Join channel
+# @name Join channel
+# @assert response.statusCode == 204
+POST {{base.url}}/api/channels/{{channel.id}}/join
+Authorization: Bearer {{auth.token}}
+
+### List members
+# @name List members
+# @assert response.statusCode == 200
+GET {{base.url}}/api/channels/{{channel.id}}/members
+Authorization: Bearer {{auth.token}}
+
+### Leave channel
+# @name Leave channel
+# @assert response.statusCode == 204
+DELETE {{base.url}}/api/channels/{{channel.id}}/leave
+Authorization: Bearer {{auth.token}}

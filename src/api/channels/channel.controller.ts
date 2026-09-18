@@ -11,7 +11,7 @@ import {
 import { AppError } from '../../utils/app-error.js';
 
 function getChannelId(req: Parameters<RequestHandler>[0]): string {
-  const channelId = getChannelId(req);
+  const channelId = req.params.channelId;
 
   if (typeof channelId !== 'string') {
     throw new AppError(400, 'Invalid channel ID');

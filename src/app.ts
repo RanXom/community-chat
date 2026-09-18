@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use('/health', healthRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/channel', channelRouter);
+app.use('/api/channels', channelRouter);
 
 app.use(errorHandler);
 
