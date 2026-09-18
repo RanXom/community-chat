@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { registerUser } from './auth.service.js';
+import { loginUser, registerUser } from './auth.service.js';
 
 export const registerController: RequestHandler = async (req, res, next) => {
   try {
@@ -8,6 +8,16 @@ export const registerController: RequestHandler = async (req, res, next) => {
     res.status(201).json({
       user,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loginController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await loginUser(req.body.email, req.body.password);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

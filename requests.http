@@ -29,3 +29,43 @@ Content-Type: application/json
   "email": "text@example.com",
   "password": "correct-horse-battery"
 }
+
+### Login user (Valid Creds)
+# @assert response.statusCode == 200
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Login user (Invalid Creds)
+# @assert response.statusCode == 401
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "text@example.com",
+  "password": "wrong-pass"
+}
+
+### Login user (Unknown email)
+# @assert response.statusCode == 401
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Login user (Invalid payload)
+# @assert response.statusCode == 400
+POST {{base.url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "short"
+}
