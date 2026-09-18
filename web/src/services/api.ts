@@ -1,27 +1,16 @@
+import type { Channel, Message, User } from '../types';
+
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/api';
 
-export type User = {
-  id: string;
-  username: string;
-  email?: string;
-  role?: 'ADMIN' | 'MODERATOR' | 'MEMBER';
+export type LoginResult = {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
 };
 
-export type Channel = {
-  id: string;
-  name: string;
-  description?: string | null;
-};
-
-export type Message = {
-  id: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    username: string;
-  };
+type ErrorResponse = {
+  error?: string;
+  message?: string;
 };
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
@@ -41,10 +30,12 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data?.message ?? 'Request failed');
+    const error = (data as ErrorResponse | null)?.error ?? (data as ErrorResponse | null)?.message;
+
+    throw new Error(error ?? 'Request failed');
   }
 
-  return data;
+  return data as T;
 }
 
 export function register(username: string, email: string, password: string) {
@@ -59,7 +50,7 @@ export function register(username: string, email: string, password: string) {
 }
 
 export function login(email: string, password: string) {
-  return request<{ user: User; accessToken: string }>('/auth/login', {
+  return request<LoginResult>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({
       email,
