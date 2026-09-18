@@ -113,3 +113,21 @@ GET {{base.url}}/api/auth/me
 # @assert response.statusCode == 401
 GET {{base.url}}/api/auth/me
 Authorization: Bearer definitely-not-a-jwt
+
+### MEMBER → member endpoint
+# @name Change to member
+# @assert response.statusCode == 200
+GET {{base.url}}/api/auth/member-test
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
+
+### MEMBER → moderator endpoint
+# @name Change to moderator
+# @assert response.statusCode == 403
+GET {{base.url}}/api/auth/moderator-test
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
+
+### MEMBER → admin endpoint
+# @name Change to admin
+# @assert response.statusCode == 403
+GET {{base.url}}/api/auth/admin-test
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiTUVNQkVSIiwic3ViIjoiZDkwMmQ2YWItMGE5NS00YTg5LWE3ZDktMjg4YzI3NDViYzE1IiwiaXNzIjoiY29tbXVuaXR5LWNoYXQiLCJhdWQiOiJjb21tdW5pdHktY2hhdC1jbGllbnQiLCJpYXQiOjE3ODk3MzYzNTAsImV4cCI6MTc4OTczNzI1MH0.S00DggfKL50txpUoLh4DHlGPIDq-0Vtzv1Rlf0wsTko
