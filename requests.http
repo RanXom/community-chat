@@ -1,0 +1,31 @@
+### Register user
+# @assert response.statusCode == 201
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
+
+### Invalid Registration
+# @assert response.statusCode == 400
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "x",
+  "email": "not-an-email-lol",
+  "password": "short"
+}
+
+### Duplicate registration
+POST {{base.url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "text@example.com",
+  "password": "correct-horse-battery"
+}
