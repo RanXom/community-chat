@@ -5,9 +5,9 @@ POST {{base.url}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "testuser",
-  "email": "text@example.com",
-  "password": "correct-horse-battery"
+  "username": "testuser2",
+  "email": "text2@example.com",
+  "password": "correct-horse-battery2"
 }
 
 ### Invalid Registration
@@ -40,8 +40,8 @@ POST {{base.url}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "text@example.com",
-  "password": "correct-horse-battery"
+  "email": "text2@example.com",
+  "password": "correct-horse-battery2"
 }
 
 ### Login user (Invalid Creds)
