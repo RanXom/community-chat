@@ -7,12 +7,13 @@ import { requestLogger } from './middleware/request-logger.js';
 import { authRouter } from './api/auth/auth.routes.js';
 import { channelRouter } from './api/channels/channel.routes.js';
 import { messageRouter } from './api/messages/message.routes.js';
+import { env } from './config/env.js';
 
 const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: env.frontendUrl,
   }),
 );
 

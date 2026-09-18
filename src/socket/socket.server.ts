@@ -7,11 +7,12 @@ import { createMessage } from '../api/messages/message.service.js';
 import { AppError } from '../utils/app-error.js';
 import { addConnection, removeConnection } from './socket.presence.js';
 import { registerTypingHandlers } from './socket.typing.js';
+import { env } from '../config/env.js';
 
 export function createSocketServer(httpServer: ReturnType<typeof createServer>): Server {
   const io = new Server(httpServer, {
     cors: {
-      origin: true,
+      origin: env.frontendUrl,
       credentials: true,
     },
   });

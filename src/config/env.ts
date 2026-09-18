@@ -7,6 +7,7 @@ const jwtIssuer: string = process.env.JWT_ISSUER ?? 'community-chat';
 const jwtAudience: string = process.env.JWT_AUDIENCE ?? 'community-chat-client';
 const accessTokenTtl = process.env.ACCESS_TOKEN_TTL ?? '15m';
 const refreshTokenTtl = process.env.REFRESH_TOKEN_TTL ?? '30d';
+const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('PORT must be a valid TCP port');
@@ -24,6 +25,7 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port,
   databaseUrl,
+  frontendUrl,
   jwt: {
     secret: jwtSecret,
     issuer: jwtIssuer,
