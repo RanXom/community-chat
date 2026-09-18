@@ -1,7 +1,9 @@
+import { env } from '../../config/env.js';
 import { prisma } from '../../prisma/client.js';
 import { AppError } from '../../utils/app-error.js';
 import { hashPassword, verifyPassword } from '../../utils/password.js';
 import { signAccessToken } from './jwt.js';
+import { generateRefreshToken, hashRefreshToken } from './refresh-token.js';
 
 export async function registerUser(username: string, email: string, password: string) {
   const existingUser = await prisma.user.findFirst({
@@ -59,13 +61,103 @@ export async function loginUser(email: string, password: string) {
 
   const accessToken = await signAccessToken(user.id, user.role);
 
+  const refreshToken = generateRefreshToken();
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+
+  const expiresAt = new Date(Date.now() + parseRefreshTokenTtl(env.jwt.refreshTokenTtl));
+
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash: refreshTokenHash,
+      expiresAt,
+      userId: user.id,
+    },
+  });
+
   return {
     accessToken,
+    refreshToken,
     user: {
       id: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
     },
+  };
+}
+
+function parseRefreshTokenTtl(ttl: string): number {
+  const match = /^(\d+)([smhd])$/.exec(ttl);
+
+  if (!match) {
+    throw new Error('Invalid refresh token ttl');
+  }
+
+  const value = Number(match[1]);
+  const unit = match[2];
+
+  const multipliers = {
+    s: 1_000,
+    m: 60_000,
+    h: 3_600_000,
+    d: 86_400_000,
+  } as const;
+
+  return value * multipliers[unit as keyof typeof multipliers];
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  const tokenHash = hashRefreshToken(refreshToken);
+
+  const session = await prisma.refreshToken.findUnique({
+    where: {
+      tokenHash,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!session || session.revokedAt !== null || session.expiresAt <= new Date()) {
+    throw new AppError(401, 'Invalid refresh token');
+  }
+
+  const newRefreshToken = generateRefreshToken();
+  const newRefreshTokenHash = hashRefreshToken(newRefreshToken);
+
+  const expiresAt = new Date(Date.now() + parseRefreshTokenTtl(env.jwt.refreshTokenTtl));
+
+  const accessToken = await signAccessToken(session.user.id, session.user.role);
+
+  await prisma.$transaction([
+    prisma.refreshToken.update({
+      where: {
+        id: session.id,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    }),
+
+    prisma.refreshToken.create({
+      data: {
+        tokenHash: newRefreshTokenHash,
+        expiresAt,
+        userId: session.user.id,
+      },
+    }),
+  ]);
+
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: session.user,
   };
 }

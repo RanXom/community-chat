@@ -1,4 +1,5 @@
 ### Register user
+# @name Register user
 # @assert response.statusCode == 201
 POST {{base.url}}/api/auth/register
 Content-Type: application/json
@@ -10,6 +11,7 @@ Content-Type: application/json
 }
 
 ### Invalid Registration
+# @name Invalid Registration
 # @assert response.statusCode == 400
 POST {{base.url}}/api/auth/register
 Content-Type: application/json
@@ -21,6 +23,7 @@ Content-Type: application/json
 }
 
 ### Duplicate registration
+# @name Duplicates registration
 POST {{base.url}}/api/auth/register
 Content-Type: application/json
 
@@ -31,6 +34,7 @@ Content-Type: application/json
 }
 
 ### Login user (Valid Creds)
+# @name Login user (Valid creds)
 # @assert response.statusCode == 200
 POST {{base.url}}/api/auth/login
 Content-Type: application/json
@@ -41,6 +45,7 @@ Content-Type: application/json
 }
 
 ### Login user (Invalid Creds)
+# @name Login user (Invalid Creds)
 # @assert response.statusCode == 401
 POST {{base.url}}/api/auth/login
 Content-Type: application/json
@@ -51,6 +56,7 @@ Content-Type: application/json
 }
 
 ### Login user (Unknown email)
+# @name Login user (Unknown email)
 # @assert response.statusCode == 401
 POST {{base.url}}/api/auth/login
 Content-Type: application/json
@@ -61,6 +67,7 @@ Content-Type: application/json
 }
 
 ### Login user (Invalid payload)
+# @name Login user (Invalid payload)
 # @assert response.statusCode == 400
 POST {{base.url}}/api/auth/login
 Content-Type: application/json
@@ -68,4 +75,14 @@ Content-Type: application/json
 {
   "email": "not-an-email",
   "password": "short"
+}
+
+### Refresh token - valid
+# @name Refresh token (valid)
+# @assert response.statusCode == 200
+POST {{base.url}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "w5BeYaRBppXI_aE3uFs7U_5n4F7yhC1M1Bzp2swPiYU"
 }
