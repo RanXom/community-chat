@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import type { Channel, User } from '../../types';
+import ThemeSwitcher from '../common/ThemeSwitcher';
 import ChannelList from './ChannelList';
 import CreateChannelDialog from './CreateChannelDialog';
 import DeleteChannelDialog from './DeleteChannelDialog';
@@ -46,6 +47,8 @@ function Sidebar({
           </button>
         </div>
       )}
+
+      <ThemeSwitcher />
 
       <footer>
         <span>
