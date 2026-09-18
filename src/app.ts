@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 import { errorHandler } from './middleware/error-handler.js';
 import { healthRouter } from './api/health/health.routes.js';
@@ -8,6 +9,12 @@ import { channelRouter } from './api/channels/channel.routes.js';
 import { messageRouter } from './api/messages/message.routes.js';
 
 const app = express();
+
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+  }),
+);
 
 app.use(requestLogger);
 app.use(express.json());
