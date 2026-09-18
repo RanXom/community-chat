@@ -20,6 +20,8 @@ export type Message = {
     id: string;
     username: string;
   };
+  status?: 'sending' | 'sent' | 'failed';
+  errorText?: string;
 };
 
 export type AuthMode = 'login' | 'register';

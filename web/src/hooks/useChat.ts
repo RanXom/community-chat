@@ -29,6 +29,21 @@ function errorMessage(err: unknown, fallback: string): string {
   return err instanceof Error ? err.message : fallback;
 }
 
+function sendErrorText(message: string): string {
+  switch (message) {
+    case 'Too many messages':
+      return "Message not sent — you're sending messages too quickly. Please wait a few seconds.";
+    case 'Channel membership required':
+      return 'Message not sent — you are no longer a member of this channel.';
+    case 'User is muted':
+      return 'Message not sent — you are muted in this channel.';
+    case 'Invalid message':
+      return 'Message not sent — the message is invalid.';
+    default:
+      return 'Message not sent.';
+  }
+}
+
 export function useChat(token: string, currentUser: User | null): ChatState {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [channel, setChannel] = useState<Channel | null>(null);
@@ -79,9 +94,25 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     });
 
     socket.on('message_created', (message: Message) => {
-      if (message.user.id !== currentUser?.id) {
-        setMessages((current) => [...current, message]);
+      if (message.user.id === currentUser?.id) {
+        setMessages((current) => {
+          const index = current.findIndex(
+            (item) =>
+              item.status === 'sending' &&
+              item.user.id === currentUser.id &&
+              item.content === message.content,
+          );
+
+          if (index === -1) return current;
+
+          const next = [...current];
+          next[index] = { ...message, status: 'sent' };
+          return next;
+        });
+        return;
       }
+
+      setMessages((current) => [...current, message]);
     });
 
     socket.on('user_typing', (data: { username: string }) => {
@@ -109,6 +140,18 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     });
 
     socket.on('error', (data: { message?: string }) => {
+      const errorText = sendErrorText(data.message ?? '');
+
+      setMessages((current) => {
+        const index = current.findLastIndex((item) => item.status === 'sending');
+
+        if (index === -1) return current;
+
+        const next = [...current];
+        next[index] = { ...next[index], status: 'failed', errorText };
+        return next;
+      });
+
       setChatError(data.message ?? 'Socket error');
     });
 
@@ -151,6 +194,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
           id: currentUser.id,
           username: currentUser.username,
         },
+        status: 'sending',
       },
     ]);
 

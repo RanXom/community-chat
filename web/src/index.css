@@ -363,6 +363,21 @@ label .optional {
   color: #b6ffb6;
 }
 
+article.failed .message-content {
+  opacity: 0.5;
+}
+
+article.sending .message-status,
+article.failed .message-status {
+  color: #527052;
+  font-size: 12px;
+  font-style: italic;
+}
+
+article.failed .message-status {
+  color: #ff6666;
+}
+
 .typing {
   color: #527052;
   font-size: 12px;
