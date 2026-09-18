@@ -1,13 +1,18 @@
+import { createServer } from 'node:http';
 import app from './app.js';
 import { env } from './config/env.js';
 import { prisma } from './prisma/client.js';
+import { createSocketServer } from './socket/socket.server.js';
 
 const port = env.port;
 
 async function start(): Promise<void> {
   await prisma.$connect();
 
-  const server = app.listen(port, () => {
+  const server = createServer(app);
+  createSocketServer(server);
+
+  server.listen(port, () => {
     console.log(`community-chat is listening at ${port}`);
   });
 
