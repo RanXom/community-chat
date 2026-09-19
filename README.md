@@ -6,6 +6,8 @@ A multi-role community and real-time chat engine, with a Node.js backend and a t
 
 **Live demo:** [community-chat-frontend-cyb7.onrender.com](https://community-chat-frontend-cyb7.onrender.com/)
 
+**Walkthrough (turn on sound beforehand):** [walkthrough.mp4](./walkthrough.mp4)
+
 > [!NOTE]
 > Two users are available by default for demo.
 >
