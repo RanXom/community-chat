@@ -6,6 +6,17 @@ A multi-role community and real-time chat engine, with a Node.js backend and a t
 
 **Live demo:** [community-chat-frontend-cyb7.onrender.com](https://community-chat-frontend-cyb7.onrender.com/)
 
+> [!NOTE]
+> Two users are available by default for demo.
+>
+> **Alice, Admin:**
+> - Email: `alice@email.com`
+> - Password: `123456789`
+>
+> **Bob, Member:**
+> - Email: `bob@email.com`
+> - Password: `987654321`
+
 [![Node](https://img.shields.io/badge/Node.js-22-339933?style=flat-square)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square)](https://www.typescriptlang.org)
 [![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square)](https://expressjs.com)
