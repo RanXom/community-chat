@@ -472,6 +472,32 @@ label .optional {
   margin-top: 12px;
 }
 
+.leave-channel {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.leave-button {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: 1px;
+}
+
+.leave-button:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.leave-channel .dialog-actions {
+  margin-top: 10px;
+}
+
 .sidebar footer {
   margin-top: auto;
   border-top: 1px solid var(--border);

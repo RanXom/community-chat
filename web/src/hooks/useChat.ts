@@ -7,6 +7,7 @@ import {
   getChannels,
   getMessages,
   joinChannel,
+  leaveChannel as leaveChannelApi,
   updateChannel as updateChannelApi,
 } from '../services/api';
 import { createSocket } from '../services/socket';
@@ -28,6 +29,7 @@ export type ChatState = {
     channelId: string,
     data: { name?: string; description?: string },
   ) => Promise<Channel>;
+  leaveChannel: (channelId: string) => Promise<void>;
 };
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -259,6 +261,17 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     return updated;
   }
 
+  async function leaveChannel(channelId: string) {
+    await leaveChannelApi(token, channelId);
+
+    setChannels((current) => current.filter((item) => item.id !== channelId));
+
+    if (channel?.id === channelId) {
+      setChannel(null);
+      setMessages([]);
+    }
+  }
+
   return {
     channels,
     channel,
@@ -272,5 +285,6 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     createChannel,
     deleteChannel,
     updateChannel,
+    leaveChannel,
   };
 }

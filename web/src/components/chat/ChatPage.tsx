@@ -60,6 +60,7 @@ function ChatPage({ auth }: { auth: AuthState }) {
           isAdmin={auth.user?.role === 'ADMIN'}
           onClose={() => setDetailsOpen(false)}
           onChannelUpdated={chat.updateChannel}
+          onLeaveChannel={chat.leaveChannel}
         />
       )}
     </main>

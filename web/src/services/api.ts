@@ -128,3 +128,7 @@ export function addChannelMember(token: string, channelId: string, identifier: s
     token,
   );
 }
+
+export function leaveChannel(token: string, channelId: string) {
+  return request(`/channels/${channelId}/leave`, { method: 'DELETE' }, token);
+}

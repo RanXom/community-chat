@@ -44,6 +44,16 @@ function addMemberErrorText(err: unknown): string {
   return 'Failed to add member.';
 }
 
+function leaveErrorText(err: unknown): string {
+  if (err instanceof Error) {
+    if (err.message === 'Channel membership not found') {
+      return 'You are not a member of this channel.';
+    }
+  }
+
+  return 'Failed to leave the channel.';
+}
+
 function ChannelDetailsDialog({
   open,
   channel,
@@ -52,6 +62,7 @@ function ChannelDetailsDialog({
   isAdmin,
   onClose,
   onChannelUpdated,
+  onLeaveChannel,
 }: {
   open: boolean;
   channel: Channel;
@@ -63,6 +74,7 @@ function ChannelDetailsDialog({
     channelId: string,
     data: { name?: string; description?: string },
   ) => Promise<Channel>;
+  onLeaveChannel: (channelId: string) => Promise<void>;
 }) {
   const [members, setMembers] = useState<ChannelMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +89,10 @@ function ChannelDetailsDialog({
   const [identifier, setIdentifier] = useState('');
   const [addError, setAddError] = useState('');
   const [adding, setAdding] = useState(false);
+
+  const [leaveConfirm, setLeaveConfirm] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState('');
 
   useEffect(() => {
     let alive = true;
@@ -154,6 +170,19 @@ function ChannelDetailsDialog({
     }
   }
 
+  async function handleLeave() {
+    setLeaving(true);
+    setLeaveError('');
+
+    try {
+      await onLeaveChannel(channel.id);
+      onClose();
+    } catch (err) {
+      setLeaveError(leaveErrorText(err));
+      setLeaving(false);
+    }
+  }
+
   return (
     <Dialog open={open} title={`# ${channel.name}`} onClose={onClose}>
       <section className="channel-facts">
@@ -220,6 +249,27 @@ function ChannelDetailsDialog({
               <span className={`member-role role-${member.user.role}`}>{member.user.role}</span>
             </div>
           ))}
+      </div>
+
+      <div className="leave-channel">
+        {!leaveConfirm ? (
+          <button type="button" className="leave-button" onClick={() => setLeaveConfirm(true)}>
+            LEAVE CHANNEL
+          </button>
+        ) : (
+          <>
+            <p className="dim">Leave #{channel.name}? You can rejoin later.</p>
+            {leaveError && <p className="error">! {leaveError}</p>}
+            <div className="dialog-actions">
+              <button type="button" className="dialog-cancel" onClick={() => setLeaveConfirm(false)} disabled={leaving}>
+                CANCEL
+              </button>
+              <button type="button" className="dialog-danger" onClick={handleLeave} disabled={leaving}>
+                {leaving ? 'LEAVING…' : 'LEAVE'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {isAdmin && (
