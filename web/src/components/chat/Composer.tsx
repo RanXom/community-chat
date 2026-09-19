@@ -4,23 +4,28 @@ function Composer({
   value,
   onChange,
   onSend,
+  onSaveEdit,
   editingMessage,
   onCancelEdit,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
+  onSaveEdit: (content: string) => void;
   editingMessage: Message | null;
   onCancelEdit: () => void;
 }) {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (editingMessage) {
+      onSaveEdit(value.trim());
+    } else {
+      onSend();
+    }
+  };
+
   return (
-    <form
-      className="composer"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSend();
-      }}
-    >
+    <form className="composer" onSubmit={handleSubmit}>
       <span>&gt;</span>
       <div className="composer-input-wrapper">
         {editingMessage && (

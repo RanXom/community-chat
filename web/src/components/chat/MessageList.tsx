@@ -70,12 +70,15 @@ function MessageRow({
       onContextMenu={(e) => onContextMenu(e, message.id)}
     >
       {showCheckbox && canManage && (
-        <input
-          type="checkbox"
-          className="message-checkbox"
-          checked={isSelected}
-          onChange={(e) => onCheckboxChange(message.id, e.target.checked)}
-          onClick={(e) => e.stopPropagation()}
+        <button
+          type="button"
+          className={`message-checkbox ${isSelected ? 'checked' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onCheckboxChange(message.id, !isSelected);
+          }}
+          aria-checked={isSelected}
+          role="checkbox"
         />
       )}
       <div className="message-content-wrapper">

@@ -64,6 +64,11 @@ function ChatPage({ auth }: { auth: AuthState }) {
             value={chat.input}
             onChange={chat.handleInput}
             onSend={chat.sendMessage}
+            onSaveEdit={(content) => {
+              if (chat.editingMessage) {
+                chat.updateMessage(chat.editingMessage.id, content);
+              }
+            }}
             editingMessage={chat.editingMessage}
             onCancelEdit={chat.cancelEdit}
           />
