@@ -1,7 +1,3 @@
-
-
-https://github.com/user-attachments/assets/69bf2845-6571-462d-9229-a9ccbe7647a4
-
 <div align="center">
 
 # Community Chat
