@@ -15,39 +15,67 @@ function Composer({
   editingMessage: Message | null;
   onCancelEdit: () => void;
 }) {
-  const handleSubmit = (event: React.FormEvent) => {
+  function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    const trimmed = value.trim();
     if (editingMessage) {
-      onSaveEdit(value.trim());
+      if (!trimmed) return;
+      onSaveEdit(trimmed);
     } else {
       onSend();
     }
-  };
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Escape' && editingMessage) {
+      event.preventDefault();
+      onCancelEdit();
+    }
+  }
+
+  if (editingMessage) {
+    return (
+      <form className="composer composer--editing" onSubmit={handleSubmit}>
+        <div className="composer-edit-box">
+          <div className="composer-edit-header">
+            <span className="composer-edit-label">EDITING MESSAGE</span>
+            <button type="button" className="composer-edit-close" onClick={onCancelEdit} aria-label="Cancel edit">
+              ×
+            </button>
+          </div>
+          <div className="composer-edit-original">{editingMessage.content}</div>
+          <div className="composer-edit-input-row">
+            <span className="composer-prompt">&gt;</span>
+            <input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="edit message..."
+              autoFocus
+            />
+          </div>
+          <div className="composer-edit-actions">
+            <button type="button" className="composer-edit-btn composer-edit-btn--cancel" onClick={onCancelEdit}>
+              cancel
+            </button>
+            <button type="submit" className="composer-edit-btn composer-edit-btn--save">
+              save
+            </button>
+          </div>
+        </div>
+      </form>
+    );
+  }
 
   return (
     <form className="composer" onSubmit={handleSubmit}>
-      <span>&gt;</span>
-      <div className="composer-input-wrapper">
-        {editingMessage && (
-          <div className="editing-indicator">
-            <div className="editing-original">
-              {editingMessage.content}
-            </div>
-            <span className="editing-badge">Editing</span>
-          </div>
-        )}
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={editingMessage ? 'edit message...' : 'type message...'}
-          autoFocus
-        />
-        {editingMessage && (
-          <button type="button" className="cancel-edit-btn" onClick={onCancelEdit}>
-            cancel
-          </button>
-        )}
-      </div>
+      <span className="composer-prompt">&gt;</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="type message..."
+        autoFocus
+      />
     </form>
   );
 }

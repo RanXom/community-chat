@@ -326,6 +326,8 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     setMessages((current) =>
       current.map((msg) => (msg.id === messageId ? { ...msg, content: message.content, updatedAt: message.updatedAt } : msg)),
     );
+    setEditingMessageState(null);
+    setInput('');
     return message;
   }
 

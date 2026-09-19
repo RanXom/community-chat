@@ -64,9 +64,13 @@ function ChatPage({ auth }: { auth: AuthState }) {
             value={chat.input}
             onChange={chat.handleInput}
             onSend={chat.sendMessage}
-            onSaveEdit={(content) => {
-              if (chat.editingMessage) {
-                chat.updateMessage(chat.editingMessage.id, content);
+            onSaveEdit={async (content) => {
+              const trimmed = content.trim();
+              if (!trimmed || !chat.editingMessage) return;
+              try {
+                await chat.updateMessage(chat.editingMessage.id, trimmed);
+              } catch {
+                // keep editing open on failure; error is surfaced via chatError / message status
               }
             }}
             editingMessage={chat.editingMessage}
