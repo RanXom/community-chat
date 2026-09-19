@@ -136,3 +136,18 @@ export function leaveChannel(token: string, channelId: string) {
 export function updateProfile(token: string, data: { username: string; email: string }) {
   return request<{ user: User }>('/auth/profile', { method: 'PATCH', body: JSON.stringify(data) }, token);
 }
+
+export function updateMessage(token: string, messageId: string, content: string) {
+  return request<{ message: Message }>(
+    `/messages/${messageId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    },
+    token,
+  );
+}
+
+export function deleteMessage(token: string, messageId: string) {
+  return request(`/messages/${messageId}`, { method: 'DELETE' }, token);
+}

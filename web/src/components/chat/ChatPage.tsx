@@ -10,6 +10,7 @@ import MessageList from './MessageList';
 function ChatPage({ auth }: { auth: AuthState }) {
   const chat = useChat(auth.token, auth.user);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <main className="chat">
@@ -23,6 +24,8 @@ function ChatPage({ auth }: { auth: AuthState }) {
         onCreateChannel={chat.createChannel}
         onDeleteChannel={chat.deleteChannel}
         onUpdateProfile={chat.updateProfile}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
       />
 
       <section className="chat-window terminal">
@@ -44,10 +47,24 @@ function ChatPage({ auth }: { auth: AuthState }) {
           messages={chat.messages}
           typingUser={chat.typingUser}
           currentUserId={auth.user?.id}
+          currentUserRole={auth.user?.role}
+          onDeleteMessage={chat.deleteMessage}
+          onEditMessage={(messageId) => {
+            const message = chat.messages.find(m => m.id === messageId);
+            if (message) {
+              chat.setEditingMessage(message);
+            }
+          }}
         />
 
         {chat.channel && (
-          <Composer value={chat.input} onChange={chat.handleInput} onSend={chat.sendMessage} />
+          <Composer
+            value={chat.input}
+            onChange={chat.handleInput}
+            onSend={chat.sendMessage}
+            editingMessage={chat.editingMessage}
+            onCancelEdit={chat.cancelEdit}
+          />
         )}
       </section>
 

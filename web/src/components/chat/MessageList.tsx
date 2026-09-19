@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Channel, Message } from '../../types';
 import TypingIndicator from './TypingIndicator';
 
@@ -14,12 +14,153 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
+function isEdited(message: Message): boolean {
+  return new Date(message.updatedAt).getTime() > new Date(message.createdAt).getTime();
+}
+
+interface ContextMenuState {
+  messageId: string;
+  x: number;
+  y: number;
+}
+
+function MessageRow({
+  message,
+  currentUserId,
+  currentUserRole,
+  isSelected,
+  isHovered,
+  onMouseEnter,
+  onMouseLeave,
+  onContextMenu,
+  onCheckboxChange,
+  showCheckbox,
+}: {
+  message: Message;
+  currentUserId: string | undefined;
+  currentUserRole: string | undefined;
+  isSelected: boolean;
+  isHovered: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onContextMenu: (event: React.MouseEvent, messageId: string) => void;
+  onCheckboxChange: (messageId: string, checked: boolean) => void;
+  showCheckbox: boolean;
+}) {
+  const isOwn = message.user.id === currentUserId;
+  const isModOrAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
+  const canManage = isOwn || isModOrAdmin;
+  const sending = message.status === 'sending';
+  const failed = message.status === 'failed';
+  const edited = isEdited(message);
+
+  const rowClass = [
+    'message-row',
+    isSelected ? 'selected' : '',
+    isHovered && !isSelected ? 'hovered' : '',
+    sending ? 'sending' : '',
+    failed ? 'failed' : '',
+  ].filter(Boolean).join(' ');
+
+  return (
+    <div
+      className={rowClass}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onContextMenu={(e) => onContextMenu(e, message.id)}
+    >
+      {showCheckbox && canManage && (
+        <input
+          type="checkbox"
+          className="message-checkbox"
+          checked={isSelected}
+          onChange={(e) => onCheckboxChange(message.id, e.target.checked)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+      <div className="message-content-wrapper">
+        <p className="message-content">{message.content}</p>
+        {edited && <span className="edited-badge">(edited)</span>}
+        <span className="timestamp">{formatTime(new Date(message.createdAt))}</span>
+        {(sending || failed) && (
+          <span className={`message-status ${failed ? 'failed' : ''}`}>
+            {failed ? message.errorText ?? 'Message not sent.' : 'sending...'}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ContextMenu({
+  x,
+  y,
+  onEdit,
+  onDelete,
+  onClose,
+  canEdit,
+  canDelete,
+}: {
+  x: number;
+  y: number;
+  onEdit: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+  canEdit: boolean;
+  canDelete: boolean;
+}) {
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="context-menu"
+      style={{ left: x, top: y }}
+      role="menu"
+    >
+      {canEdit && (
+        <button className="context-menu-item" onClick={() => { onEdit(); onClose(); }} role="menuitem">
+          Edit
+        </button>
+      )}
+      {canDelete && (
+        <button className="context-menu-item danger" onClick={() => { onDelete(); onClose(); }} role="menuitem">
+          Delete
+        </button>
+      )}
+    </div>
+  );
+}
+
 function MessageGroupItem({
   group,
   currentUserId,
+  currentUserRole,
+  selectedIds,
+  showCheckboxes,
+  hoveredId,
+  onHover,
+  onHoverEnd,
+  onContextMenu,
+  onCheckboxChange,
 }: {
   group: MessageGroup;
   currentUserId: string | undefined;
+  currentUserRole: string | undefined;
+  selectedIds: Set<string>;
+  showCheckboxes: boolean;
+  hoveredId: string | null;
+  onHover: (messageId: string) => void;
+  onHoverEnd: () => void;
+  onContextMenu: (event: React.MouseEvent, messageId: string) => void;
+  onCheckboxChange: (messageId: string, checked: boolean) => void;
 }) {
   const isOwn = group.userId === currentUserId;
 
@@ -41,19 +182,20 @@ function MessageGroupItem({
       </div>
       {minuteGroups.map((mg, idx) => (
         <div key={idx} className="minute-group">
-          {mg.messages.map((message, msgIdx) => (
-            <div
+          {mg.messages.map((message) => (
+            <MessageRow
               key={message.id}
-              className={`message-row ${message.status === 'sending' ? 'sending' : message.status === 'failed' ? 'failed' : ''} ${msgIdx === 0 ? 'first-in-minute' : ''}`}
-            >
-              <p className="message-content">{message.content}</p>
-              {msgIdx === 0 && <span className="timestamp">{mg.minute}</span>}
-              {(message.status === 'sending' || message.status === 'failed') && (
-                <span className={`message-status ${message.status === 'failed' ? 'failed' : ''}`}>
-                  {message.status === 'failed' ? message.errorText ?? 'Message not sent.' : 'sending...'}
-                </span>
-              )}
-            </div>
+              message={message}
+              currentUserId={currentUserId}
+              currentUserRole={currentUserRole}
+              isSelected={selectedIds.has(message.id)}
+              isHovered={hoveredId === message.id}
+              onMouseEnter={() => onHover(message.id)}
+              onMouseLeave={onHoverEnd}
+              onContextMenu={onContextMenu}
+              onCheckboxChange={onCheckboxChange}
+              showCheckbox={showCheckboxes}
+            />
           ))}
         </div>
       ))}
@@ -66,13 +208,23 @@ function MessageList({
   messages,
   typingUser,
   currentUserId,
+  currentUserRole,
+  onDeleteMessage,
+  onEditMessage,
 }: {
   channel: Channel | null;
   messages: Message[];
   typingUser: string | null;
   currentUserId: string | undefined;
+  currentUserRole: string | undefined;
+  onDeleteMessage: (messageId: string) => Promise<void>;
+  onEditMessage: (messageId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const [prevChannelId, setPrevChannelId] = useState(channel?.id);
   const [prevMessageCount, setPrevMessageCount] = useState(messages.length);
@@ -81,11 +233,25 @@ function MessageList({
 
   const channelId = channel?.id;
 
+  const groups = messages.reduce<MessageGroup[]>((acc, message) => {
+    const last = acc[acc.length - 1];
+    if (last && last.userId === message.user.id) {
+      last.messages.push(message);
+    } else {
+      acc.push({ userId: message.user.id, username: message.user.username, messages: [message] });
+    }
+    return acc;
+  }, []);
+
   if (channelId !== prevChannelId) {
     setPrevChannelId(channelId);
     setPrevMessageCount(messages.length);
     setAtBottom(true);
     setUnseenCount(0);
+    setSelectedIds(new Set());
+    setShowCheckboxes(false);
+    setContextMenu(null);
+    setHoveredId(null);
   } else if (messages.length !== prevMessageCount) {
     setPrevMessageCount(messages.length);
 
@@ -140,15 +306,89 @@ function MessageList({
     setUnseenCount(0);
   }
 
-  const groups = messages.reduce<MessageGroup[]>((acc, message) => {
-    const last = acc[acc.length - 1];
-    if (last && last.userId === message.user.id) {
-      last.messages.push(message);
-    } else {
-      acc.push({ userId: message.user.id, username: message.user.username, messages: [message] });
+  function onHover(messageId: string) {
+    if (!showCheckboxes) {
+      setHoveredId(messageId);
     }
-    return acc;
+  }
+
+  function onHoverEnd() {
+    if (!showCheckboxes) {
+      setHoveredId(null);
+    }
+  }
+
+  function handleContextMenu(event: React.MouseEvent, messageId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const isOwn = messages.find(m => m.id === messageId)?.user.id === currentUserId;
+    const isModOrAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
+    const canManage = isOwn || isModOrAdmin;
+
+    if (!canManage) return;
+
+    if (!selectedIds.has(messageId)) {
+      setSelectedIds(new Set([messageId]));
+    }
+    setShowCheckboxes(true);
+    setContextMenu({
+      messageId,
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }
+
+  function onCheckboxChange(messageId: string, checked: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(messageId);
+      } else {
+        next.delete(messageId);
+      }
+      return next;
+    });
+  }
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
   }, []);
+
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (contextMenu && !event.composedPath().some(el => (el as HTMLElement).classList?.contains?.('context-menu'))) {
+      closeContextMenu();
+    }
+  }, [contextMenu, closeContextMenu]);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
+
+  function handleDeleteSelected() {
+    const idsToDelete = selectedIds.size > 0 ? Array.from(selectedIds) : contextMenu ? [contextMenu.messageId] : [];
+    if (idsToDelete.length === 0) return;
+
+    idsToDelete.forEach((id) => {
+      onDeleteMessage(id);
+    });
+    setSelectedIds(new Set());
+    setShowCheckboxes(false);
+    closeContextMenu();
+  }
+
+  function handleEditSelected() {
+    const editId = selectedIds.size === 1 ? Array.from(selectedIds)[0] : contextMenu?.messageId;
+    if (!editId) return;
+    onEditMessage(editId);
+    closeContextMenu();
+  }
+
+  const contextMenuMessage = contextMenu ? messages.find(m => m.id === contextMenu.messageId) : null;
+  const canEdit = Boolean(contextMenuMessage?.user.id === currentUserId);
+  const isModOrAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
+  const canDelete = Boolean(contextMenuMessage && (canEdit || isModOrAdmin));
 
   return (
     <div className="messages-container">
@@ -162,11 +402,35 @@ function MessageList({
         {!channel && <p className="dim">&gt; select a channel to begin</p>}
 
         {groups.map((group, index) => (
-          <MessageGroupItem key={index} group={group} currentUserId={currentUserId} />
+          <MessageGroupItem
+            key={index}
+            group={group}
+            currentUserId={currentUserId}
+            currentUserRole={currentUserRole}
+            selectedIds={selectedIds}
+            showCheckboxes={showCheckboxes}
+            hoveredId={hoveredId}
+            onHover={onHover}
+            onHoverEnd={onHoverEnd}
+            onContextMenu={handleContextMenu}
+            onCheckboxChange={onCheckboxChange}
+          />
         ))}
 
         {typingUser && typingUser !== currentUserId && <TypingIndicator username={typingUser} />}
       </div>
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onEdit={handleEditSelected}
+          onDelete={handleDeleteSelected}
+          onClose={closeContextMenu}
+          canEdit={canEdit}
+          canDelete={canDelete}
+        />
+      )}
 
       {unseenCount > 0 && (
         <button className="new-messages-button" onClick={jumpToLatest}>

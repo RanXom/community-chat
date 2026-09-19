@@ -10,6 +10,8 @@ import {
   leaveChannel as leaveChannelApi,
   updateChannel as updateChannelApi,
   updateProfile as updateProfileApi,
+  updateMessage as updateMessageApi,
+  deleteMessage as deleteMessageApi,
 } from '../services/api';
 import { createSocket } from '../services/socket';
 import type { Channel, Message, User } from '../types';
@@ -21,6 +23,7 @@ export type ChatState = {
   input: string;
   typingUser: string | null;
   chatError: string;
+  editingMessage: Message | null;
   selectChannel: (channel: Channel) => Promise<void>;
   sendMessage: () => void;
   handleInput: (value: string) => void;
@@ -32,6 +35,10 @@ export type ChatState = {
   ) => Promise<Channel>;
   leaveChannel: (channelId: string) => Promise<void>;
   updateProfile: (data: { username: string; email: string }) => Promise<User>;
+  updateMessage: (messageId: string, content: string) => Promise<Message>;
+  deleteMessage: (messageId: string) => Promise<void>;
+  setEditingMessage: (message: Message | null) => void;
+  cancelEdit: () => void;
 };
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -63,6 +70,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
   const [chatError, setChatError] = useState('');
 
   const socketRef = useRef<Socket | null>(null);
+  const [editingMessage, setEditingMessageState] = useState<Message | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -306,6 +314,31 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     return user;
   }
 
+  async function updateMessage(messageId: string, content: string) {
+    const { message } = await updateMessageApi(token, messageId, content);
+    setMessages((current) =>
+      current.map((msg) => (msg.id === messageId ? { ...msg, content: message.content, updatedAt: message.updatedAt } : msg)),
+    );
+    return message;
+  }
+
+  async function deleteMessage(messageId: string) {
+    await deleteMessageApi(token, messageId);
+    setMessages((current) => current.filter((msg) => msg.id !== messageId));
+  }
+
+  function setEditingMessage(message: Message | null) {
+    setEditingMessageState(message);
+    if (message) {
+      setInput(message.content);
+    }
+  }
+
+  function cancelEdit() {
+    setEditingMessageState(null);
+    setInput('');
+  }
+
   return {
     channels,
     channel,
@@ -313,6 +346,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     input,
     typingUser,
     chatError,
+    editingMessage,
     selectChannel,
     sendMessage,
     handleInput,
@@ -321,5 +355,9 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     updateChannel,
     leaveChannel,
     updateProfile,
+    updateMessage,
+    deleteMessage,
+    setEditingMessage,
+    cancelEdit,
   };
 }

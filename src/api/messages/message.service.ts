@@ -98,3 +98,132 @@ export async function listMessages(userId: string, channelId: string, cursor?: s
     nextCursor: hasMore ? (items[items.length - 1]?.id ?? null) : null,
   };
 }
+
+export async function updateMessage(userId: string, messageId: string, content: string) {
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      userId: true,
+      channelId: true,
+      content: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!message) {
+    throw new AppError(404, 'Message not found');
+  }
+
+  const membership = await prisma.channelMember.findUnique({
+    where: {
+      userId_channelId: {
+        userId,
+        channelId: message.channelId,
+      },
+    },
+    select: {
+      user: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!membership) {
+    throw new AppError(403, 'Channel membership required');
+  }
+
+  const isAuthor = message.userId === userId;
+  const requesterRole = membership.user.role;
+  const isModeratorOrAdmin = requesterRole === 'MODERATOR' || requesterRole === 'ADMIN';
+
+  if (!isAuthor && !isModeratorOrAdmin) {
+    throw new AppError(403, 'Insufficient permissions');
+  }
+
+  return prisma.message.update({
+    where: { id: messageId },
+    data: {
+      content,
+      updatedAt: new Date(),
+    },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+    },
+  });
+}
+
+export async function deleteMessage(userId: string, messageId: string) {
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      userId: true,
+      channelId: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!message) {
+    throw new AppError(404, 'Message not found');
+  }
+
+  const membership = await prisma.channelMember.findUnique({
+    where: {
+      userId_channelId: {
+        userId,
+        channelId: message.channelId,
+      },
+    },
+    select: {
+      user: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!membership) {
+    throw new AppError(403, 'Channel membership required');
+  }
+
+  const isAuthor = message.userId === userId;
+  const requesterRole = membership.user.role;
+  const isModeratorOrAdmin = requesterRole === 'MODERATOR' || requesterRole === 'ADMIN';
+
+  if (!isAuthor && !isModeratorOrAdmin) {
+    throw new AppError(403, 'Insufficient permissions');
+  }
+
+  await prisma.message.delete({
+    where: { id: messageId },
+  });
+
+  return { success: true };
+}
