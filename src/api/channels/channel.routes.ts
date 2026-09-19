@@ -8,6 +8,7 @@ import { createChannelSchema, channelIdSchema } from './channel.schema.js';
 
 import {
   createChannelController,
+  deleteChannelController,
   getChannelController,
   joinChannelController,
   leaveChannelController,
@@ -48,4 +49,12 @@ channelRouter.get(
   requireAuth,
   validate(channelIdSchema),
   listMembersController,
+);
+
+channelRouter.delete(
+  '/:channelId',
+  requireAuth,
+  requireRole('ADMIN'),
+  validate(channelIdSchema),
+  deleteChannelController,
 );
