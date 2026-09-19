@@ -806,6 +806,10 @@ label .optional {
   color: var(--accent);
 }
 
+.offline {
+  color: var(--danger);
+}
+
 .messages-container {
   position: relative;
   flex: 1;

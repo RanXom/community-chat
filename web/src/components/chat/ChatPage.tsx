@@ -39,7 +39,9 @@ function ChatPage({ auth }: { auth: AuthState }) {
           >
             {chat.channel ? `# ${chat.channel.name}` : 'SELECT CHANNEL'}
           </button>
-          <span className="online">● CONNECTED</span>
+          <span className={chat.connected ? 'online' : 'offline'}>
+            {chat.connected ? '● CONNECTED' : '● DISCONNECTED'}
+          </span>
         </header>
 
         <MessageList
