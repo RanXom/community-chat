@@ -2,7 +2,7 @@
 
 # Community Chat
 
-A multi-role community and real-time chat engine — production-oriented backend with a polished terminal-styled web client.
+A multi-role community and real-time chat engine, with a Node.js backend and a terminal-styled web client.
 
 **Live demo:** [community-chat-frontend-cyb7.onrender.com](https://community-chat-frontend-cyb7.onrender.com/)
 
@@ -19,9 +19,9 @@ A multi-role community and real-time chat engine — production-oriented backend
 
 ## About
 
-Community Chat is a **portfolio-grade** community chat engine built as a full-stack project. The backend is a real-time messaging API with role-based access control, secure token rotation, channel management and message rate limiting — engineered for correctness, security and testability. The frontend is a React + Vite client styled like a green terminal, with an OS-aware light/dark theme.
+Community Chat is a full-stack chat engine. The backend is a real-time messaging API with role-based access control, secure token rotation, channel management, and message rate limiting. The frontend is a React + Vite client styled like a green terminal, with an OS-aware light/dark theme.
 
-The project is developed feature-by-feature on focused branches (see [Contributing](#contributing)), with everything verified through integration smoke tests, unit tests, and manual review before it lands on `main`.
+The project is developed feature-by-feature on focused branches (see [Contributing](#contributing)). Every feature is verified with unit tests, integration smoke tests, and manual review before it is merged to `main`.
 
 ## Features
 
@@ -164,7 +164,7 @@ npx prisma migrate dev
 ### 5. Run the backend
 
 ```bash
-npm run dev          # tsx watch — serves API + Socket.io on :3000
+npm run dev          # tsx watch; serves API + Socket.io on :3000
 ```
 
 ### 6. Run the web client
@@ -189,21 +189,21 @@ npm run build           # backend build (web: npm run build --prefix web)
 
 ## Environment Variables
 
-Backend — `.env` (see `.env.example`):
+Backend: `.env` (see `.env.example`):
 
 | Variable | Default | Required | Purpose |
 | --- | --- | --- | --- |
 | `NODE_ENV` | `development` | no | Runtime environment |
 | `PORT` | `3000` | no | HTTP + Socket.io port |
-| `DATABASE_URL` | — | **yes** | PostgreSQL connection string |
-| `JWT_SECRET` | — | **yes** | Access/refresh token signing secret (32+ chars) |
+| `DATABASE_URL` | none | **yes** | PostgreSQL connection string |
+| `JWT_SECRET` | none | **yes** | Access/refresh token signing secret (32+ chars) |
 | `JWT_ISSUER` | `community-chat` | no | Token issuer claim |
 | `JWT_AUDIENCE` | `community-chat-client` | no | Token audience claim |
 | `ACCESS_TOKEN_TTL` | `15m` | no | Access token lifetime |
 | `REFRESH_TOKEN_TTL` | `30d` | no | Refresh token lifetime |
 | `FRONTEND_URL` | `http://localhost:5173` | no | CORS + Socket.io origin |
 
-Frontend — `web/.env.local`:
+Frontend: `web/.env.local`:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -214,15 +214,15 @@ Frontend — `web/.env.local`:
 
 `prisma/schema.prisma` defines the core entities:
 
-- **User** — profile + `Role` (`ADMIN`/`MODERATOR`/`MEMBER`)
-- **Channel** — unique name + optional description
-- **ChannelMember** — many-to-many join with `mutedUntil` (composite primary key)
-- **Message** — content + author + channel, indexed by `(channelId, createdAt DESC)`
-- **RefreshToken** — hashed token with rotation `familyId`, expiry and revocation
+- **User**: profile + `Role` (`ADMIN`/`MODERATOR`/`MEMBER`)
+- **Channel**: unique name + optional description
+- **ChannelMember**: many-to-many join with `mutedUntil` (composite primary key)
+- **Message**: content + author + channel, indexed by `(channelId, createdAt DESC)`
+- **RefreshToken**: hashed token with rotation `familyId`, expiry and revocation
 
 ## Contributing
 
-Community Chat is developed feature-by-feature with a strict, reviewable workflow:
+Community Chat is developed feature-by-feature:
 
 1. Branch from the latest `main` using `feat/<scope>` or `fix/<topic>` names
    (e.g. `feat/ui`, `feat/auth`, `chore/docs`).
@@ -236,8 +236,8 @@ Community Chat is developed feature-by-feature with a strict, reviewable workflo
 
 ## Roadmap
 
-The core loop — auth, channels, real-time messaging, rate limiting, admin controls
-and themes — is implemented on `main`. Upcoming ideas include message editing and
+The core loop (auth, channels, real-time messaging, rate limiting, admin controls
+and themes) is implemented on `main`. Upcoming ideas include message editing and
 deletion, moderation (mutes/bans), search, and transport-level tests.
 
 ## License
