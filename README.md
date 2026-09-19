@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/69bf2845-6571-462d-9229-a9ccbe7647a4
+
 <div align="center">
 
 # Community Chat
@@ -26,7 +30,7 @@ A multi-role community and real-time chat engine, with a Node.js backend and a t
 > - Email: `bob@email.com`
 > - Password: `987654321`
 
-<video src="./walkthrough.mp4" controls width="100%"></video>
+https://github.com/user-attachments/assets/27c2911d-8601-4e1a-b3ec-aae626557419
 
 ---
 
