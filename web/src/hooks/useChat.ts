@@ -24,6 +24,7 @@ export type ChatState = {
   typingUser: string | null;
   chatError: string;
   editingMessage: Message | null;
+  connected: boolean;
   selectChannel: (channel: Channel) => Promise<void>;
   sendMessage: () => void;
   handleInput: (value: string) => void;
@@ -71,6 +72,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
 
   const socketRef = useRef<Socket | null>(null);
   const [editingMessage, setEditingMessageState] = useState<Message | null>(null);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -134,7 +136,12 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     socketRef.current = socket;
 
     socket.on('connect', () => {
+      setConnected(true);
       socket.emit('join_channel', channel.id);
+    });
+
+    socket.on('disconnect', () => {
+      setConnected(false);
     });
 
     socket.on('message_created', (message: Message) => {
@@ -319,6 +326,8 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     setMessages((current) =>
       current.map((msg) => (msg.id === messageId ? { ...msg, content: message.content, updatedAt: message.updatedAt } : msg)),
     );
+    setEditingMessageState(null);
+    setInput('');
     return message;
   }
 
@@ -347,6 +356,7 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     typingUser,
     chatError,
     editingMessage,
+    connected,
     selectChannel,
     sendMessage,
     handleInput,

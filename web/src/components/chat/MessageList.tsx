@@ -35,6 +35,8 @@ function MessageRow({
   onContextMenu,
   onCheckboxChange,
   showCheckbox,
+  showTimestamp,
+  timestamp,
 }: {
   message: Message;
   currentUserId: string | undefined;
@@ -46,6 +48,8 @@ function MessageRow({
   onContextMenu: (event: React.MouseEvent, messageId: string) => void;
   onCheckboxChange: (messageId: string, checked: boolean) => void;
   showCheckbox: boolean;
+  showTimestamp?: boolean;
+  timestamp?: string;
 }) {
   const isOwn = message.user.id === currentUserId;
   const isModOrAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
@@ -60,6 +64,7 @@ function MessageRow({
     isHovered && !isSelected ? 'hovered' : '',
     sending ? 'sending' : '',
     failed ? 'failed' : '',
+    showTimestamp ? 'first-in-minute' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -70,18 +75,21 @@ function MessageRow({
       onContextMenu={(e) => onContextMenu(e, message.id)}
     >
       {showCheckbox && canManage && (
-        <input
-          type="checkbox"
-          className="message-checkbox"
-          checked={isSelected}
-          onChange={(e) => onCheckboxChange(message.id, e.target.checked)}
-          onClick={(e) => e.stopPropagation()}
+        <button
+          type="button"
+          className={`message-checkbox ${isSelected ? 'checked' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onCheckboxChange(message.id, !isSelected);
+          }}
+          aria-checked={isSelected}
+          role="checkbox"
         />
       )}
       <div className="message-content-wrapper">
         <p className="message-content">{message.content}</p>
         {edited && <span className="edited-badge">(edited)</span>}
-        <span className="timestamp">{formatTime(new Date(message.createdAt))}</span>
+        {showTimestamp && timestamp && <span className="timestamp">{timestamp}</span>}
         {(sending || failed) && (
           <span className={`message-status ${failed ? 'failed' : ''}`}>
             {failed ? message.errorText ?? 'Message not sent.' : 'sending...'}
@@ -182,7 +190,7 @@ function MessageGroupItem({
       </div>
       {minuteGroups.map((mg, idx) => (
         <div key={idx} className="minute-group">
-          {mg.messages.map((message) => (
+          {mg.messages.map((message, msgIdx) => (
             <MessageRow
               key={message.id}
               message={message}
@@ -195,6 +203,8 @@ function MessageGroupItem({
               onContextMenu={onContextMenu}
               onCheckboxChange={onCheckboxChange}
               showCheckbox={showCheckboxes}
+              showTimestamp={msgIdx === 0}
+              timestamp={mg.minute}
             />
           ))}
         </div>
@@ -355,16 +365,54 @@ function MessageList({
     setContextMenu(null);
   }, []);
 
-  const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (contextMenu && !event.composedPath().some(el => (el as HTMLElement).classList?.contains?.('context-menu'))) {
-      closeContextMenu();
-    }
-  }, [contextMenu, closeContextMenu]);
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    setShowCheckboxes(false);
+    setHoveredId(null);
+    setContextMenu(null);
+  }, []);
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleClickOutside]);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && (showCheckboxes || contextMenu)) {
+        event.preventDefault();
+        clearSelection();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showCheckboxes, contextMenu, clearSelection]);
+
+  useEffect(() => {
+    function handleDocMouseDown(event: MouseEvent) {
+      const target = event.target as HTMLElement;
+      const insideMenu = Boolean(target.closest('.context-menu'));
+      const insideMessages = Boolean(target.closest('.messages-container'));
+      const insideRow = Boolean(target.closest('.message-row'));
+      const insideCheckbox = Boolean(target.closest('.message-checkbox'));
+
+      if (contextMenu && !insideMenu) {
+        if (showCheckboxes && !insideMessages) {
+          clearSelection();
+        } else if (showCheckboxes && insideMessages && !insideRow && !insideCheckbox) {
+          clearSelection();
+        } else {
+          closeContextMenu();
+        }
+        return;
+      }
+
+      if (showCheckboxes && !insideMenu) {
+        if (!insideMessages) {
+          clearSelection();
+        } else if (!insideRow && !insideCheckbox) {
+          clearSelection();
+        }
+      }
+    }
+    document.addEventListener('mousedown', handleDocMouseDown);
+    return () => document.removeEventListener('mousedown', handleDocMouseDown);
+  }, [contextMenu, showCheckboxes, clearSelection, closeContextMenu]);
 
   function handleDeleteSelected() {
     const idsToDelete = selectedIds.size > 0 ? Array.from(selectedIds) : contextMenu ? [contextMenu.messageId] : [];
@@ -373,16 +421,14 @@ function MessageList({
     idsToDelete.forEach((id) => {
       onDeleteMessage(id);
     });
-    setSelectedIds(new Set());
-    setShowCheckboxes(false);
-    closeContextMenu();
+    clearSelection();
   }
 
   function handleEditSelected() {
     const editId = selectedIds.size === 1 ? Array.from(selectedIds)[0] : contextMenu?.messageId;
     if (!editId) return;
     onEditMessage(editId);
-    closeContextMenu();
+    clearSelection();
   }
 
   const contextMenuMessage = contextMenu ? messages.find(m => m.id === contextMenu.messageId) : null;

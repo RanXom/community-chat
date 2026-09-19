@@ -39,7 +39,9 @@ function ChatPage({ auth }: { auth: AuthState }) {
           >
             {chat.channel ? `# ${chat.channel.name}` : 'SELECT CHANNEL'}
           </button>
-          <span className="online">● CONNECTED</span>
+          <span className={chat.connected ? 'online' : 'offline'}>
+            {chat.connected ? '● CONNECTED' : '● DISCONNECTED'}
+          </span>
         </header>
 
         <MessageList
@@ -62,6 +64,15 @@ function ChatPage({ auth }: { auth: AuthState }) {
             value={chat.input}
             onChange={chat.handleInput}
             onSend={chat.sendMessage}
+            onSaveEdit={async (content) => {
+              const trimmed = content.trim();
+              if (!trimmed || !chat.editingMessage) return;
+              try {
+                await chat.updateMessage(chat.editingMessage.id, trimmed);
+              } catch {
+                // keep editing open on failure; error is surfaced via chatError / message status
+              }
+            }}
             editingMessage={chat.editingMessage}
             onCancelEdit={chat.cancelEdit}
           />
