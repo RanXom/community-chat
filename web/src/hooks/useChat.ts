@@ -81,6 +81,33 @@ export function useChat(token: string, currentUser: User | null): ChatState {
   }, [token]);
 
   useEffect(() => {
+    if (!token) return;
+
+    let alive = true;
+
+    const refresh = async () => {
+      if (!alive) return;
+      if (document.visibilityState === 'visible') {
+        try {
+          const data = await getChannels(token);
+          if (alive) setChannels(data.channels);
+        } catch {
+          // silent fail - channels will update on next user action
+        }
+      }
+    };
+
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+
+    return () => {
+      alive = false;
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [token]);
+
+  useEffect(() => {
     if (!token || !channel) return;
 
     let alive = true;
