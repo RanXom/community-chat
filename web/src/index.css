@@ -996,6 +996,9 @@ label .optional {
 .message-content-wrapper {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .context-menu {

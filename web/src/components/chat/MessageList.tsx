@@ -35,6 +35,8 @@ function MessageRow({
   onContextMenu,
   onCheckboxChange,
   showCheckbox,
+  showTimestamp,
+  timestamp,
 }: {
   message: Message;
   currentUserId: string | undefined;
@@ -46,6 +48,8 @@ function MessageRow({
   onContextMenu: (event: React.MouseEvent, messageId: string) => void;
   onCheckboxChange: (messageId: string, checked: boolean) => void;
   showCheckbox: boolean;
+  showTimestamp?: boolean;
+  timestamp?: string;
 }) {
   const isOwn = message.user.id === currentUserId;
   const isModOrAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
@@ -60,6 +64,7 @@ function MessageRow({
     isHovered && !isSelected ? 'hovered' : '',
     sending ? 'sending' : '',
     failed ? 'failed' : '',
+    showTimestamp ? 'first-in-minute' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -84,7 +89,7 @@ function MessageRow({
       <div className="message-content-wrapper">
         <p className="message-content">{message.content}</p>
         {edited && <span className="edited-badge">(edited)</span>}
-        <span className="timestamp">{formatTime(new Date(message.createdAt))}</span>
+        {showTimestamp && timestamp && <span className="timestamp">{timestamp}</span>}
         {(sending || failed) && (
           <span className={`message-status ${failed ? 'failed' : ''}`}>
             {failed ? message.errorText ?? 'Message not sent.' : 'sending...'}
@@ -185,7 +190,7 @@ function MessageGroupItem({
       </div>
       {minuteGroups.map((mg, idx) => (
         <div key={idx} className="minute-group">
-          {mg.messages.map((message) => (
+          {mg.messages.map((message, msgIdx) => (
             <MessageRow
               key={message.id}
               message={message}
@@ -198,6 +203,8 @@ function MessageGroupItem({
               onContextMenu={onContextMenu}
               onCheckboxChange={onCheckboxChange}
               showCheckbox={showCheckboxes}
+              showTimestamp={msgIdx === 0}
+              timestamp={mg.minute}
             />
           ))}
         </div>
