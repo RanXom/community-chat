@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 import { env } from '../../config/env.js';
 import { prisma } from '../../prisma/client.js';
 import { AppError } from '../../utils/app-error.js';
@@ -66,9 +68,12 @@ export async function loginUser(email: string, password: string) {
 
   const expiresAt = new Date(Date.now() + parseRefreshTokenTtl(env.jwt.refreshTokenTtl));
 
+  const familyId = crypto.randomUUID();
+
   await prisma.refreshToken.create({
     data: {
       tokenHash: refreshTokenHash,
+      familyId,
       expiresAt,
       userId: user.id,
     },
@@ -125,7 +130,21 @@ export async function refreshAccessToken(refreshToken: string) {
     },
   });
 
-  if (!session || session.revokedAt !== null || session.expiresAt <= new Date()) {
+  if (!session || session.expiresAt <= new Date()) {
+    throw new AppError(401, 'Invalid refresh token');
+  }
+
+  if (session.revokedAt !== null) {
+    await prisma.refreshToken.updateMany({
+      where: {
+        familyId: session.familyId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+
     throw new AppError(401, 'Invalid refresh token');
   }
 
@@ -149,6 +168,7 @@ export async function refreshAccessToken(refreshToken: string) {
     prisma.refreshToken.create({
       data: {
         tokenHash: newRefreshTokenHash,
+        familyId: session.familyId,
         expiresAt,
         userId: session.user.id,
       },
