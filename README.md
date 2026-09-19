@@ -6,7 +6,14 @@ A multi-role community and real-time chat engine, with a Node.js backend and a t
 
 **Live demo:** [community-chat-frontend-cyb7.onrender.com](https://community-chat-frontend-cyb7.onrender.com/)
 
-**Walkthrough (turn on sound beforehand):** [walkthrough.mp4](./walkthrough.mp4)
+[![Node](https://img.shields.io/badge/Node.js-22-339933?style=flat-square)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square)](https://www.typescriptlang.org)
+[![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square)](https://expressjs.com)
+[![Socket.io](https://img.shields.io/badge/Socket.io-4-010101?style=flat-square)](https://socket.io)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square)](https://react.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square)](https://www.postgresql.org)
+
+</div>
 
 > [!NOTE]
 > Two users are available by default for demo.
@@ -19,14 +26,7 @@ A multi-role community and real-time chat engine, with a Node.js backend and a t
 > - Email: `bob@email.com`
 > - Password: `987654321`
 
-[![Node](https://img.shields.io/badge/Node.js-22-339933?style=flat-square)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square)](https://www.typescriptlang.org)
-[![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square)](https://expressjs.com)
-[![Socket.io](https://img.shields.io/badge/Socket.io-4-010101?style=flat-square)](https://socket.io)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square)](https://react.dev)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square)](https://www.postgresql.org)
-
-</div>
+<video src="./walkthrough.mp4" controls width="100%"></video>
 
 ---
 
