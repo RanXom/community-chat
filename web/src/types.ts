@@ -11,6 +11,16 @@ export type Channel = {
   description?: string | null;
 };
 
+export type ChannelMember = {
+  joinedAt: string;
+  mutedUntil: string | null;
+  user: {
+    id: string;
+    username: string;
+    role: 'ADMIN' | 'MODERATOR' | 'MEMBER';
+  };
+};
+
 export type Message = {
   id: string;
   content: string;

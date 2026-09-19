@@ -134,6 +134,105 @@ export async function listMembers(channelId: string) {
   });
 }
 
+export async function updateChannel(
+  channelId: string,
+  data: { name?: string; description?: string | null },
+) {
+  const channel = await prisma.channel.findUnique({
+    where: { id: channelId },
+    select: { id: true, name: true },
+  });
+
+  if (!channel) {
+    throw new AppError(404, 'Channel not found');
+  }
+
+  if (data.name && data.name !== channel.name) {
+    const existing = await prisma.channel.findUnique({
+      where: { name: data.name },
+      select: { id: true },
+    });
+
+    if (existing) {
+      throw new AppError(409, 'Channel already exists');
+    }
+  }
+
+  return prisma.channel.update({
+    where: { id: channelId },
+    data: {
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.description !== undefined ? { description: data.description || null } : {}),
+    },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function addMember(channelId: string, identifier: string) {
+  const channel = await prisma.channel.findUnique({
+    where: { id: channelId },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+    },
+  });
+
+  if (!channel) {
+    throw new AppError(404, 'Channel not found');
+  }
+
+  const target = await prisma.user.findFirst({
+    where: {
+      OR: [{ username: identifier }, { email: identifier }],
+    },
+    select: { id: true },
+  });
+
+  if (!target) {
+    throw new AppError(404, 'User not found');
+  }
+
+  const existing = await prisma.channelMember.findUnique({
+    where: {
+      userId_channelId: {
+        userId: target.id,
+        channelId,
+      },
+    },
+    select: { userId: true },
+  });
+
+  if (existing) {
+    throw new AppError(409, 'Already a member');
+  }
+
+  const member = await prisma.channelMember.create({
+    data: {
+      userId: target.id,
+      channelId,
+    },
+    select: {
+      joinedAt: true,
+      mutedUntil: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  return { member, channel };
+}
+
 export async function deleteChannel(channelId: string) {
   const result = await prisma.channel.deleteMany({
     where: { id: channelId },

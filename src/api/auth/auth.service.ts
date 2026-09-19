@@ -195,3 +195,32 @@ export async function logoutUser(refreshToken: string): Promise<void> {
     },
   });
 }
+
+export async function updateProfile(userId: string, data: { username?: string; email?: string }) {
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        ...(data.username ? [{ username: data.username }] : []),
+        ...(data.email ? [{ email: data.email }] : []),
+      ],
+      NOT: { id: userId },
+    },
+    select: { id: true },
+  });
+
+  if (existingUser) {
+    throw new AppError(409, 'Username or email already exists');
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data,
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+}

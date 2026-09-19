@@ -7,6 +7,12 @@ import { registerTypingHandlers } from './socket.typing.js';
 import { env } from '../config/env.js';
 import { registerMessageHandlers } from './socket.messages.js';
 
+let ioRef: Server | null = null;
+
+export function emitToUser(userId: string, event: string, payload: unknown): void {
+  ioRef?.to(userId).emit(event, payload);
+}
+
 export function createSocketServer(httpServer: ReturnType<typeof createServer>): Server {
   const io = new Server(httpServer, {
     cors: {
@@ -14,6 +20,8 @@ export function createSocketServer(httpServer: ReturnType<typeof createServer>):
       credentials: true,
     },
   });
+
+  ioRef = io;
 
   io.use(async (socket, next) => {
     try {
@@ -30,6 +38,8 @@ export function createSocketServer(httpServer: ReturnType<typeof createServer>):
   io.on('connection', (socket) => {
     const user = socket.data.user;
     const becameOnline = addConnection(user.id);
+
+    socket.join(user.id);
 
     if (becameOnline) {
       io.emit('user_online', {

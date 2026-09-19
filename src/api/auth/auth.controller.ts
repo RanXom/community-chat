@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { loginUser, logoutUser, refreshAccessToken, registerUser } from './auth.service.js';
+import { loginUser, logoutUser, refreshAccessToken, registerUser, updateProfile } from './auth.service.js';
 
 export const registerController: RequestHandler = async (req, res, next) => {
   try {
@@ -47,4 +47,14 @@ export const meController: RequestHandler = (req, res) => {
   res.status(200).json({
     user: req.user,
   });
+};
+
+export const updateProfileController: RequestHandler = async (req, res, next) => {
+  try {
+    const user = await updateProfile(req.user!.id, req.body);
+
+    res.status(200).json({ user });
+  } catch (error) {
+    next(error);
+  }
 };

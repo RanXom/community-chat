@@ -2,7 +2,16 @@ import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'community-chat:theme';
 
-export type Theme = 'dark' | 'light';
+export type Theme =
+  | 'dark'
+  | 'light'
+  | 'catppuccin-mocha'
+  | 'catppuccin-latte'
+  | 'tokyo-night'
+  | 'gruvbox-dark'
+  | 'gruvbox-light'
+  | 'nord'
+  | 'nord-light';
 
 function systemTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
@@ -10,7 +19,8 @@ function systemTheme(): Theme {
 
 function initialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored === 'dark' || stored === 'light' ? stored : systemTheme();
+  if (stored) return stored as Theme;
+  return systemTheme();
 }
 
 export function useTheme() {
