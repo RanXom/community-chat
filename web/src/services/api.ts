@@ -1,4 +1,4 @@
-import type { Channel, Message, User } from '../types';
+import type { Channel, ChannelMember, Message, User } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/api';
 
@@ -95,6 +95,36 @@ export function getMessages(token: string, channelId: string) {
   return request<{ items: Message[]; nextCursor: string | null }>(
     `/channels/${channelId}/messages?limit=50`,
     {},
+    token,
+  );
+}
+
+export function getChannelMembers(token: string, channelId: string) {
+  return request<{ members: ChannelMember[] }>(`/channels/${channelId}/members`, {}, token);
+}
+
+export function updateChannel(
+  token: string,
+  channelId: string,
+  data: { name?: string; description?: string },
+) {
+  return request<{ channel: Channel }>(
+    `/channels/${channelId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    },
+    token,
+  );
+}
+
+export function addChannelMember(token: string, channelId: string, identifier: string) {
+  return request<{ member: ChannelMember }>(
+    `/channels/${channelId}/members`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    },
     token,
   );
 }

@@ -4,9 +4,8 @@ import { requireAuth } from '../../middleware/auth.js';
 import { requireRole } from '../../middleware/role.js';
 import { validate } from '../../middleware/validate.js';
 
-import { createChannelSchema, channelIdSchema } from './channel.schema.js';
-
 import {
+  addMemberController,
   createChannelController,
   deleteChannelController,
   getChannelController,
@@ -14,7 +13,10 @@ import {
   leaveChannelController,
   listChannelsController,
   listMembersController,
+  updateChannelController,
 } from './channel.controller.js';
+
+import { createChannelSchema, channelIdSchema, addMemberSchema, updateChannelSchema } from './channel.schema.js';
 
 export const channelRouter = Router();
 
@@ -49,6 +51,22 @@ channelRouter.get(
   requireAuth,
   validate(channelIdSchema),
   listMembersController,
+);
+
+channelRouter.post(
+  '/:channelId/members',
+  requireAuth,
+  requireRole('ADMIN'),
+  validate(addMemberSchema),
+  addMemberController,
+);
+
+channelRouter.patch(
+  '/:channelId',
+  requireAuth,
+  requireRole('ADMIN'),
+  validate(updateChannelSchema),
+  updateChannelController,
 );
 
 channelRouter.delete(

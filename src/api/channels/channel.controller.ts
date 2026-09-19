@@ -1,6 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import {
+  addMember,
   createChannel,
   deleteChannel,
   getChannel,
@@ -8,8 +9,10 @@ import {
   leaveChannel,
   listChannels,
   listMembers,
+  updateChannel,
 } from './channel.service.js';
 import { AppError } from '../../utils/app-error.js';
+import { emitToUser } from '../../socket/socket.server.js';
 
 function getChannelId(req: Parameters<RequestHandler>[0]): string {
   const channelId = req.params.channelId;
@@ -86,6 +89,28 @@ export const listMembersController: RequestHandler = async (req, res, next) => {
     const members = await listMembers(getChannelId(req));
 
     res.status(200).json({ members });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateChannelController: RequestHandler = async (req, res, next) => {
+  try {
+    const channel = await updateChannel(getChannelId(req), req.body);
+
+    res.status(200).json({ channel });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addMemberController: RequestHandler = async (req, res, next) => {
+  try {
+    const { member, channel } = await addMember(getChannelId(req), req.body.identifier);
+
+    emitToUser(member.user.id, 'channel_membership_added', { channel });
+
+    res.status(201).json({ member });
   } catch (error) {
     next(error);
   }

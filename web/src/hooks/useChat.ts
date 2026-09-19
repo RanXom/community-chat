@@ -7,6 +7,7 @@ import {
   getChannels,
   getMessages,
   joinChannel,
+  updateChannel as updateChannelApi,
 } from '../services/api';
 import { createSocket } from '../services/socket';
 import type { Channel, Message, User } from '../types';
@@ -23,6 +24,10 @@ export type ChatState = {
   handleInput: (value: string) => void;
   createChannel: (name: string, description?: string) => Promise<Channel>;
   deleteChannel: (channelId: string) => Promise<void>;
+  updateChannel: (
+    channelId: string,
+    data: { name?: string; description?: string },
+  ) => Promise<Channel>;
 };
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -155,6 +160,12 @@ export function useChat(token: string, currentUser: User | null): ChatState {
       setChatError(data.message ?? 'Socket error');
     });
 
+    socket.on('channel_membership_added', () => {
+      getChannels(token)
+        .then((data) => setChannels(data.channels))
+        .catch(() => undefined);
+    });
+
     return () => {
       alive = false;
       socket.disconnect();
@@ -230,6 +241,24 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     }
   }
 
+  async function updateChannel(channelId: string, data: { name?: string; description?: string }) {
+    const { channel: updated } = await updateChannelApi(token, channelId, data);
+
+    setChannels((current) =>
+      current.map((item) =>
+        item.id === updated.id ? { ...item, name: updated.name, description: updated.description } : item,
+      ),
+    );
+
+    setChannel((current) =>
+      current?.id === updated.id
+        ? { ...current, name: updated.name, description: updated.description }
+        : current,
+    );
+
+    return updated;
+  }
+
   return {
     channels,
     channel,
@@ -242,5 +271,6 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     handleInput,
     createChannel,
     deleteChannel,
+    updateChannel,
   };
 }

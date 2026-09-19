@@ -389,6 +389,89 @@ label .optional {
   border-color: var(--border-danger);
 }
 
+.channel-title {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.channel-title:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.channel-title:disabled {
+  cursor: default;
+}
+
+.channel-description {
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.section-title {
+  margin: 20px 0 8px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+.members-list {
+  max-height: 240px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.member-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-you {
+  margin-left: 6px;
+  color: var(--text-faint);
+  font-style: normal;
+  font-size: 11px;
+}
+
+.member-role {
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+}
+
+.role-ADMIN {
+  color: var(--danger);
+  border-color: var(--border-danger);
+}
+
+.role-MODERATOR {
+  color: var(--accent);
+}
+
+.role-MEMBER {
+  color: var(--text-dim);
+}
+
+.add-member-form {
+  margin-top: 12px;
+}
+
 .sidebar footer {
   margin-top: auto;
   border-top: 1px solid var(--border);
