@@ -1,9 +1,46 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { Channel, Message } from '../../types';
-import MessageItem from './MessageItem';
 import TypingIndicator from './TypingIndicator';
 
 const SCROLL_THRESHOLD = 80;
+
+type MessageGroup = {
+  userId: string;
+  username: string;
+  messages: Message[];
+};
+
+function MessageGroupItem({
+  group,
+  currentUserId,
+}: {
+  group: MessageGroup;
+  currentUserId: string | undefined;
+}) {
+  const isOwn = group.userId === currentUserId;
+
+  return (
+    <div className={`message-group ${isOwn ? 'own' : ''}`}>
+      <div className="message-group-header">
+        <strong>{group.username}</strong>
+      </div>
+      {group.messages.map((message) => (
+        <div
+          key={message.id}
+          className={`message-row ${message.status === 'sending' ? 'sending' : message.status === 'failed' ? 'failed' : ''}`}
+        >
+          <p className="message-content">{message.content}</p>
+          <span className="timestamp">{new Date(message.createdAt).toLocaleTimeString()}</span>
+          {(message.status === 'sending' || message.status === 'failed') && (
+            <span className={`message-status ${message.status === 'failed' ? 'failed' : ''}`}>
+              {message.status === 'failed' ? message.errorText ?? 'Message not sent.' : 'sending...'}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function MessageList({
   channel,
@@ -84,6 +121,16 @@ function MessageList({
     setUnseenCount(0);
   }
 
+  const groups = messages.reduce<MessageGroup[]>((acc, message) => {
+    const last = acc[acc.length - 1];
+    if (last && last.userId === message.user.id) {
+      last.messages.push(message);
+    } else {
+      acc.push({ userId: message.user.id, username: message.user.username, messages: [message] });
+    }
+    return acc;
+  }, []);
+
   return (
     <div className="messages-container">
       <div
@@ -95,8 +142,8 @@ function MessageList({
       >
         {!channel && <p className="dim">&gt; select a channel to begin</p>}
 
-        {messages.map((message) => (
-          <MessageItem key={message.id} message={message} />
+        {groups.map((group, index) => (
+          <MessageGroupItem key={index} group={group} currentUserId={currentUserId} />
         ))}
 
         {typingUser && typingUser !== currentUserId && <TypingIndicator username={typingUser} />}

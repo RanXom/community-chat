@@ -524,38 +524,68 @@ label .optional {
   padding: 20px;
 }
 
-.messages article {
+.message-group {
   margin-bottom: 18px;
   animation: message-in 0.18s ease-out;
 }
 
-.messages article strong {
+.message-group.own .message-group-header strong {
   color: var(--accent);
 }
 
-.timestamp {
-  color: var(--text-faint);
-  font-size: 11px;
-  margin-left: 12px;
+.message-group-header {
+  margin-bottom: 6px;
 }
 
-.messages article p {
-  margin: 5px 0 0;
+.message-group-header strong {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.message-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+
+.message-row:last-child {
+  margin-bottom: 0;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   color: var(--text);
+  word-break: break-word;
 }
 
-article.failed .message-content {
+.message-row.sending .message-content,
+.message-row.failed .message-content {
   opacity: 0.5;
 }
 
-article.sending .message-status,
-article.failed .message-status {
-  color: var(--text-dim);
-  font-size: 12px;
-  font-style: italic;
+.timestamp {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+  margin-top: 2px;
 }
 
-article.failed .message-status {
+.message-status {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-style: italic;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.message-status.failed {
   color: var(--danger);
 }
 
