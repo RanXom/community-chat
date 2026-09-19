@@ -132,3 +132,7 @@ export function addChannelMember(token: string, channelId: string, identifier: s
 export function leaveChannel(token: string, channelId: string) {
   return request(`/channels/${channelId}/leave`, { method: 'DELETE' }, token);
 }
+
+export function updateProfile(token: string, data: { username: string; email: string }) {
+  return request<{ user: User }>('/auth/profile', { method: 'PATCH', body: JSON.stringify(data) }, token);
+}

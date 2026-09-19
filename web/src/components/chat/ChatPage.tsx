@@ -22,6 +22,7 @@ function ChatPage({ auth }: { auth: AuthState }) {
         onLogout={auth.logout}
         onCreateChannel={chat.createChannel}
         onDeleteChannel={chat.deleteChannel}
+        onUpdateProfile={chat.updateProfile}
       />
 
       <section className="chat-window terminal">

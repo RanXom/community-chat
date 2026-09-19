@@ -251,26 +251,28 @@ function ChannelDetailsDialog({
           ))}
       </div>
 
-      <div className="leave-channel">
-        {!leaveConfirm ? (
-          <button type="button" className="leave-button" onClick={() => setLeaveConfirm(true)}>
-            LEAVE CHANNEL
-          </button>
-        ) : (
-          <>
-            <p className="dim">Leave #{channel.name}? You can rejoin later.</p>
-            {leaveError && <p className="error">! {leaveError}</p>}
-            <div className="dialog-actions">
-              <button type="button" className="dialog-cancel" onClick={() => setLeaveConfirm(false)} disabled={leaving}>
-                CANCEL
-              </button>
-              <button type="button" className="dialog-danger" onClick={handleLeave} disabled={leaving}>
-                {leaving ? 'LEAVING…' : 'LEAVE'}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      {!isAdmin && (
+        <div className="leave-channel">
+          {!leaveConfirm ? (
+            <button type="button" className="leave-button" onClick={() => setLeaveConfirm(true)}>
+              LEAVE CHANNEL
+            </button>
+          ) : (
+            <>
+              <p className="dim">Leave #{channel.name}? You can rejoin later.</p>
+              {leaveError && <p className="error">! {leaveError}</p>}
+              <div className="dialog-actions">
+                <button type="button" className="dialog-cancel" onClick={() => setLeaveConfirm(false)} disabled={leaving}>
+                  CANCEL
+                </button>
+                <button type="button" className="dialog-danger" onClick={handleLeave} disabled={leaving}>
+                  {leaving ? 'LEAVING…' : 'LEAVE'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {isAdmin && (
         <form className="add-member-form" onSubmit={handleAddMember}>

@@ -9,6 +9,7 @@ import {
   joinChannel,
   leaveChannel as leaveChannelApi,
   updateChannel as updateChannelApi,
+  updateProfile as updateProfileApi,
 } from '../services/api';
 import { createSocket } from '../services/socket';
 import type { Channel, Message, User } from '../types';
@@ -30,6 +31,7 @@ export type ChatState = {
     data: { name?: string; description?: string },
   ) => Promise<Channel>;
   leaveChannel: (channelId: string) => Promise<void>;
+  updateProfile: (data: { username: string; email: string }) => Promise<User>;
 };
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -299,6 +301,11 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     }
   }
 
+  async function updateProfile(data: { username: string; email: string }) {
+    const { user } = await updateProfileApi(token, data);
+    return user;
+  }
+
   return {
     channels,
     channel,
@@ -313,5 +320,6 @@ export function useChat(token: string, currentUser: User | null): ChatState {
     deleteChannel,
     updateChannel,
     leaveChannel,
+    updateProfile,
   };
 }

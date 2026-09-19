@@ -10,6 +10,10 @@ type MessageGroup = {
   messages: Message[];
 };
 
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 function MessageGroupItem({
   group,
   currentUserId,
@@ -19,23 +23,38 @@ function MessageGroupItem({
 }) {
   const isOwn = group.userId === currentUserId;
 
+  const minuteGroups = group.messages.reduce<{ minute: string; messages: Message[] }[]>((acc, message) => {
+    const minute = formatTime(new Date(message.createdAt));
+    const last = acc[acc.length - 1];
+    if (last && last.minute === minute) {
+      last.messages.push(message);
+    } else {
+      acc.push({ minute, messages: [message] });
+    }
+    return acc;
+  }, []);
+
   return (
     <div className={`message-group ${isOwn ? 'own' : ''}`}>
       <div className="message-group-header">
         <strong>{group.username}</strong>
       </div>
-      {group.messages.map((message) => (
-        <div
-          key={message.id}
-          className={`message-row ${message.status === 'sending' ? 'sending' : message.status === 'failed' ? 'failed' : ''}`}
-        >
-          <p className="message-content">{message.content}</p>
-          <span className="timestamp">{new Date(message.createdAt).toLocaleTimeString()}</span>
-          {(message.status === 'sending' || message.status === 'failed') && (
-            <span className={`message-status ${message.status === 'failed' ? 'failed' : ''}`}>
-              {message.status === 'failed' ? message.errorText ?? 'Message not sent.' : 'sending...'}
-            </span>
-          )}
+      {minuteGroups.map((mg, idx) => (
+        <div key={idx} className="minute-group">
+          {mg.messages.map((message, msgIdx) => (
+            <div
+              key={message.id}
+              className={`message-row ${message.status === 'sending' ? 'sending' : message.status === 'failed' ? 'failed' : ''} ${msgIdx === 0 ? 'first-in-minute' : ''}`}
+            >
+              <p className="message-content">{message.content}</p>
+              {msgIdx === 0 && <span className="timestamp">{mg.minute}</span>}
+              {(message.status === 'sending' || message.status === 'failed') && (
+                <span className={`message-status ${message.status === 'failed' ? 'failed' : ''}`}>
+                  {message.status === 'failed' ? message.errorText ?? 'Message not sent.' : 'sending...'}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
       ))}
     </div>

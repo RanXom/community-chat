@@ -31,3 +31,12 @@ export const refreshSchema = z.object({
   params: z.object({}),
   query: z.object({}),
 });
+
+export const updateProfileSchema = z.object({
+  body: z.object({
+    username: z.string().trim().min(3).max(32).regex(/^[a-zA-Z0-9_]+$/).optional(),
+    email: z.email().trim().max(254).optional(),
+  }).refine((data) => data.username || data.email, { message: 'At least one field required' }),
+  params: z.object({}),
+  query: z.object({}),
+});
